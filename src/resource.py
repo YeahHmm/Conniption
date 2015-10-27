@@ -15,3 +15,12 @@ class SystemState:
 
     def isGoal(self):
         return False
+
+
+class Move:
+    action = ['flip', 'place', 'none']
+    
+    def __init__(self):
+        self._player = 0
+        self._key = 'none'
+        self._column = -1
