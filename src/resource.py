@@ -4,7 +4,7 @@ from itertools import repeat
 
 class Move:
     action = {'flip':'flip', 'place':'place', 'none':'none'}
-    
+
     def __init__(self, action='none', player=0, column=-1):
         self._action = action
         self._player = player
@@ -18,25 +18,25 @@ class Move:
 
     def __hash__(self):
         return self.toTupple().__hash__()
-    
+
 
 class SystemState:
-    def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
+    def __init__(self, board=list(repeat([0,0,0,0,0,0], 7)), prev_move=Move(), \
             cur_player=0, num_flips=(0, 0), is_up=0):
         self._board = board
         self._prev_move = prev_move
         self._cur_player = cur_player
         self._num_flips = num_flips
         self._is_up = is_up
-    
+
     def update(self, mv):
         new_player = not self._cur_player
         new_board = deepcopy(self._board)
-        
+
         if mv._action == Move.action['flip']:
             new_up = not self._is_up
-            #new_num_flips = 
-            pass 
+            #new_num_flips =
+            pass
         elif mv._action == Move.action['place']:
             pass
         elif mv._action == Move.action['none']:
