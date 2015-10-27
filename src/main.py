@@ -6,14 +6,16 @@ def main():
     print("Start Main")
     board = "0"*42
     currentState = SystemState()
-    matrix = list(map(int, list(board)))
-    printboard(matrix)
+    print (currentState)
+    #matrix = list(map(int, list(board)))
+    #printboard(matrix)
 
     position = input("input move (1-7): ")
     move = Move('place',0,position)
     currentState = currentState.update(move)
-    matrix = list(map(int, list(board)))
-    printboard(matrix)
+    #matrix = list(map(int, list(board)))
+    #printboard(matrix)
+    print (currentState)
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,6 @@
 from copy import deepcopy
-from itertools import repeat
+from itertools import repeat, chain
+import os
 
 
 class Move:
@@ -59,3 +60,17 @@ class SystemState:
 
     def __hash__(self):
         return self.toTupple().__hash__()
+
+    def __str__(self):
+        os.system('clear')
+        matrix = list(chain.from_iterable(self._board))
+        toPrint = ' ' + '----' * 14 + '\n|'
+        #toPrint += '|'
+        for i, j in enumerate(matrix):
+            toPrint += '{0:^7}|'.format(j)
+            if i == 6 or i == 13 or i == 20 or i ==27 or i == 34\
+               or i ==41:
+                toPrint += '\n'
+                toPrint += ' ' + '----' * 14 + '\n|'
+        toPrint = toPrint[:-1]
+        return toPrint
