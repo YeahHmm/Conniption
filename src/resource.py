@@ -30,7 +30,7 @@ class SystemState:
     MAX_FLIPS = 4
 
     def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
-            cur_player=1, num_flips=(0, 0), is_down=0):
+            cur_player=0, num_flips=(0, 0), is_down=0):
         self._board = board
         self._prev_move = prev_move
         self._cur_player = cur_player
@@ -39,18 +39,18 @@ class SystemState:
 
     def update(self, mv):
         new_board = deepcopy(self._board)
-        new_player = self._cur_player * -1
+        new_player = int(not self._cur_player)
         new_flips = deepcopy(self._num_flips)
         new_down = self._is_down
         
         if mv._action == Move.action['flip']:
             new_flips = tuple(map(lambda i: new_flips[i] + (i == self._cur_player), range(2)))
-            new_down = not new_down
+            new_down = int(not new_down)
         elif mv._action == Move.action['place']:
             if self._is_down:
-                new_board[mv._column] += [self._cur_player]
+                new_board[mv._column] = [self._cur_player] + new_board[mv._column]
             else:
-                new_board[mv._column] =  new_board[mv._column] + [self._cur_player]
+                new_board[mv._column] = new_board[mv._column] + [self._cur_player]
 
         return SystemState(new_board, mv, new_player, new_flips, new_down)
 
@@ -92,10 +92,12 @@ class SystemState:
 
     def __str__(self):
         if self._is_down:
-            filled = list(map(lambda c: c[::-1] + [0]*(SystemState.NUM_ROWS - len(c)), self._board))
+            filled = list(map(lambda c: c[::-1] + [2]*(SystemState.NUM_ROWS - len(c)), self._board))
         else:
-            filled = list(map(lambda c: c + [0]*(SystemState.NUM_ROWS - len(c)), self._board))
-        filled = list(map(lambda c: list(map(lambda k: 'X' if k == 1 else 'O' if k == -1 else ' ', c)), filled))
+            filled = list(map(lambda c: c + [2]*(SystemState.NUM_ROWS - len(c)), self._board))
+
+        conv = lambda k: 'X' if k == 0 else 'O' if k == 1 else ' '
+        filled = list(map(lambda c: list(map(conv, c)), filled))
 
         toPrint = ' ' + '----' * 14 + '\n|'
         for j in range(SystemState.NUM_ROWS - 1, -1, -1):
