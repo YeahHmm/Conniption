@@ -19,7 +19,7 @@ class Move:
 
     def __hash__(self):
         return self.toTupple().__hash__()
-    
+
 
 class SystemState:
     def __init__(self, board=list(repeat(deque(), 7)), prev_move=Move(), \
@@ -29,7 +29,7 @@ class SystemState:
         self._cur_player = cur_player
         self._num_flips = num_flips
         self._is_up = is_up
-    
+
     def update(self, mv):
         new_board = deepcopy(self._board)
         new_player = self._cur_player * -1

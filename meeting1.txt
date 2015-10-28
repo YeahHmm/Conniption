@@ -1,17 +1,18 @@
 Entry Point:
-  initialize GUI
-  Enter Main Loop:
-    prompt play
-      exit if no
-    assign P1, P2
-    initialize System State
-    Enter Game Loop:
-      P1.play(curState)
-      cur.State is goal?
-      P2.play(curState)
-      cur.State is goal?
-      
+	initialize GUI
+	Enter Main Loop:
+		prompt play
+			exit if no
+		assign P1, P2
+		initialize System State
+		Enter Game Loop:
+			P1.play(curState)
+			cur.State is goal?
+			P2.play(curState)
+			cur.State is goal?
+
 - could have play( return 1 if win
 - can either have threaded GUI observe state or loop tell GUI to draw
 - single thread might be better ude to game's pipelining
 - how to handle timing of user input
+- Test
