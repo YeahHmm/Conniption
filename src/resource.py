@@ -4,24 +4,24 @@ import os
 
 
 class Move:
-    action = {'flip':'flip', 'place':'place', 'none':'none'}
-    
-    def __init__(self, act_key='none', player=0, column=-1):
-        self._action = Move.action[act_key]
-        self._player = player
-        self._column = column
+	action = {'flip':'flip', 'place':'place', 'none':'none'}
 
-    def toTupple(self):
-        return (self._player, self._action, self._column)
+	def __init__(self, act_key='none', player=0, column=-1):
+		self._action = Move.action[act_key]
+		self._player = player
+		self._column = column
 
-    def __eq__(self, mv):
-        return self.toTupple() == mv.toTupple()
+	def toTupple(self):
+		return (self._player, self._action, self._column)
 
-    def __hash__(self):
-        return self.toTupple().__hash__()
+	def __eq__(self, mv):
+		return self.toTupple() == mv.toTupple()
 
-    def __repr__(self):
-        return self.toTupple().__str__()
+	def __hash__(self):
+		return self.toTupple().__hash__()
+
+	def __repr__(self):
+		return self.toTupple().__str__()
 
 
 class SystemState:
