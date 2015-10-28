@@ -24,7 +24,7 @@ class Move:
 
 class SystemState:
     def __init__(self, board=list(repeat(deque(), 7)), prev_move=Move(), \
-            cur_player=1, num_flips=(0, 0), is_up=0):
+            cur_player=1, num_flips=(0, 0), is_down=0):
         self._board = board
         self._prev_move = prev_move
         self._cur_player = cur_player
@@ -64,6 +64,9 @@ class SystemState:
     def __hash__(self):
         return self.toTupple().__hash__()
 
+    def __repr__(self):
+        return self.toTupple().__repr__()
+
     def __str__(self):
         os.system('clear')
         matrix = list(chain.from_iterable(self._board))
@@ -71,8 +74,7 @@ class SystemState:
         #toPrint += '|'
         for i, j in enumerate(matrix):
             toPrint += '{0:^7}|'.format(j)
-            if i == 6 or i == 13 or i == 20 or i ==27 or i == 34\
-               or i ==41:
+            if i % 7 == 6:
                 toPrint += '\n'
                 toPrint += ' ' + '----' * 14 + '\n|'
         toPrint = toPrint[:-1]
