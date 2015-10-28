@@ -105,6 +105,7 @@ class SystemState:
 					toPrint += '\n'
 					toPrint += ' ' + '----' * 14 + '\n|'
 		toPrint = toPrint[:-1]
+		toPrint += ' '
 		for i in range(7):
 			toPrint += '{0:^7} '.format(i+1)
 
