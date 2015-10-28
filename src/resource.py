@@ -39,11 +39,14 @@ class SystemState:
 
 	def update(self, mv):
 		new_board = deepcopy(self._board)
-		new_player = int(not self._cur_player)
+		new_player = self._cur_player
 		new_flips = deepcopy(self._num_flips)
 		new_down = self._is_down
+		new_move = mv
 
 		if mv._action == Move.action['flip']:
+			if self._prev_move._player == mv._player:
+				new_player = int(not new_player)
 			new_flips = tuple(map(lambda i: new_flips[i] + (i == self._cur_player), range(2)))
 			new_down = int(not new_down)
 		elif mv._action == Move.action['place']:
@@ -51,8 +54,12 @@ class SystemState:
 				new_board[mv._column] = [self._cur_player] + new_board[mv._column]
 			else:
 				new_board[mv._column] = new_board[mv._column] + [self._cur_player]
+		elif mv._action == Move.action['none']:
+			if self._prev_move._player == mv._player:
+				new_player = int(not new_player)
+			new_move = self._prev_move
 
-		return SystemState(new_board, mv, new_player, new_flips, new_down)
+		return SystemState(new_board, new_move, new_player, new_flips, new_down)
 
 	def validMove(self, mv):
 		if mv._player != self._cur_player:
@@ -63,15 +70,14 @@ class SystemState:
 				return False
 			elif self._num_flips[self._cur_player] >= SystemState.MAX_FLIPS:
 				return False
-			else:
-				return True
 		elif mv._action == Move.action['place']:
 			if len(self._board[mv._column]) >= SystemState.NUM_ROWS:
 				return False
-			else:
-				return True
+		elif mv._action == Move.action['none']:
+			if self._prev_move._player != mv._player and self._prev_move._action == Move.action['none']:
+				return False
 
-		return False
+		return True
 
 	def isGoal(self):
 		return False
