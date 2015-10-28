@@ -66,7 +66,6 @@ class SystemState:
             else:
                 return True
         elif mv._action == Move.action['place']:
-            print("TEST")
             if len(self._board[mv._column]) >= SystemState.NUM_ROWS:
                 return False
             else:
