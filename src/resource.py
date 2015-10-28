@@ -4,7 +4,7 @@ from itertools import repeat
 
 
 class Move:
-    action = {'flip':'flip', 'place':'place'}
+    action = {'flip':'flip', 'place':'place', 'none':'none'}
     
     def __init__(self, act_key='none', player=0, column=-1):
         self._action = Move.action[act_key]
