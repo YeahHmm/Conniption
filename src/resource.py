@@ -29,24 +29,24 @@ class SystemState:
         self._prev_move = prev_move
         self._cur_player = cur_player
         self._num_flips = num_flips
-        self._is_up = is_up
+        self._is_down = is_down
 
     def update(self, mv):
         new_board = deepcopy(self._board)
         new_player = self._cur_player * -1
         new_flips = deepcopy(self._num_flips)
-        new_up = self._is_up
+        new_down = self._is_down
         
         if mv._action == Move.action['flip']:
             new_flips = tuple(map(lambda i: new_flips[i] + (i == self._cur_player), range(2)))
-            new_up = not new_up
+            new_down = not new_down
         elif mv._action == Move.action['place']:
-            if self._is_up:
+            if self._is_down:
                 new_board[mv._column].append(self._cur_player)
             else:
                 new_board[mv._column].appendLeft(self._cur_player)
 
-        return SystemState(new_board, mv, new_player, new_flips, new_up)
+        return SystemState(new_board, mv, new_player, new_flips, new_down)
 
     def validMove(self, mv):
         return False
