@@ -103,7 +103,7 @@ class SystemState:
 					return True
 			startCol += 1
 			startRow -= 1
-		# Diagonal left to Right
+		# Diagonal left to Right up
 		startCol = col - 3 if col > 3 else 0
 		startRow = row - 3 if col > 3 else row - col
 		while startCol <= col and startCol <= 3:
