@@ -77,6 +77,20 @@ class SystemState:
 							return True
 		return False
 
+	def genMoves(self):
+		moves = set()
+		if self._cur_player == self._prev_move._player:
+			if self._prev_move._action == 'flip' or self._prev_move._action == 'none':
+				for i in range(SystemState.NUM_COLS):
+					moves.add(Move('place', self._cur_player, i))
+			elif self._prev_move._action != 'flip':
+				moves.add(Move('flip', self._cur_player))
+				moves.add(Move('none', self._cur_player))
+			else:
+				moves.add(Move('none', self._cur_player))
+		return moves
+
+
 	def isGoal(self):
 		return False
 
