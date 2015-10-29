@@ -60,6 +60,9 @@ class SystemState:
 		return SystemState(new_board, mv, new_player, new_flips, new_down)
 
 	def validMove(self, mv):
+		if self._cur_player != mv._player:
+			return False
+
 		if mv._action == 'flip' or mv._action == 'none':
 			if self._prev_move._action != 'flip':
 				if self._prev_move._player != mv._player:
