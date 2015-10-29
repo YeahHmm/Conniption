@@ -18,11 +18,13 @@ def main():
 		move = Move(key, cur_state._cur_player, pos)
 		if cur_state.validMove(move):
 			cur_state = cur_state.update(move)
-		if cur_state.isGoal(move):
-			break
-		print (cur_state)
+			if cur_state.isGoal(move):
+				break
+		else:
+			print('Invalid move, try again')
+			input('Press to continue')
 
-	#os.system('clear')
+	os.system('clear')
 	print (cur_state)
 	print ('Game over')
 if __name__ == "__main__":
