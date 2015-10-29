@@ -13,6 +13,7 @@ def main():
         os.system('clear')
         print (cur_state)
         print(prevMv, valid)
+        print(cur_state.genMoves())
         val = input("input action (flip/none, place [1-7]): ").strip().split(' ')
         key = val[0]
         pos = -1
