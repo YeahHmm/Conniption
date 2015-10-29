@@ -21,6 +21,9 @@ class Graph:
 	def hasVertex(self, v):
 		return v in self._vset
 
+	def getVertices(self):
+		return deepcopy(self._vset)
+
 	def hasEdge(self, v1, v2):
 		if v1 in self._vset:
 			for e in self._data[v1]:

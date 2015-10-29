@@ -2,6 +2,11 @@ from copy import deepcopy
 from itertools import repeat, chain
 import os
 
+from graph import Graph
+
+
+def _buildSols():
+	return None
 
 class Move:
 	action = ['flip', 'place', 'none']
@@ -28,6 +33,8 @@ class SystemState:
 	NUM_COLS = 7
 	NUM_ROWS = 6
 	MAX_FLIPS = 4
+
+	SOLS_GRAPH = _buildSols()
 
 	def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
 			cur_player=0, num_flips=(0, 0), is_down=0):
