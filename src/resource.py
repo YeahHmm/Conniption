@@ -97,38 +97,40 @@ class SystemState:
 		row = len(self._board[mv._column])-1
 		matrix = deepcopy(self.filledMatrix())
 		col = copy(mv._column)
-		# Horizontal
-		i = col - 3 if col > 3 else 0
-		while i <= col and i <= SystemState.NUM_COLS-4:
-			if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-				return True
-			i += 1
-		# Vertical
-		j = row - 3 if (row%7) > 3 else 0
-		while j <= row and j <= SystemState.NUM_ROWS-4:
-			if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-				return True
-			j += 1
-		# Diagonal Left to rigth down
-		startCol = col - 3 if col > 3 else 0
-		startRow = row + 3 if col > 3 else row + col
-		while startCol <= col and startCol <= 3:
-			if startRow > 2 and startRow <6:
-				if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
-				==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
+
+		if matrix[col][row] != 2: #Avoid test in case of none or flip moves
+			# Horizontal
+			i = col - 3 if col > 3 else 0
+			while i <= col and i <= SystemState.NUM_COLS-4:
+				if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
 					return True
-			startCol += 1
-			startRow -= 1
-		# Diagonal left to Right up
-		startCol = col - 3 if col > 3 else 0
-		startRow = row - 3 if col > 3 else row - col
-		while startCol <= col and startCol <= 3:
-			if startRow >= 0 and startRow <4:
-				if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
-				==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
+				i += 1
+			# Vertical
+			j = row - 3 if (row%7) > 3 else 0
+			while j <= row and j <= SystemState.NUM_ROWS-4:
+				if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
 					return True
-			startCol += 1
-			startRow += 1
+				j += 1
+			# Diagonal Left to rigth down
+			startCol = col - 3 if col > 3 else 0
+			startRow = row + 3 if col > 3 else row + col
+			while startCol <= col and startCol <= 3:
+				if startRow > 2 and startRow <6:
+					if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
+					==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
+						return True
+				startCol += 1
+				startRow -= 1
+			# Diagonal left to Right up
+			startCol = col - 3 if col > 3 else 0
+			startRow = row - 3 if col > 3 else row - col
+			while startCol <= col and startCol <= 3:
+				if startRow >= 0 and startRow <4:
+					if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
+					==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
+						return True
+				startCol += 1
+				startRow += 1
 
 		return False
 
