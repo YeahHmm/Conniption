@@ -29,7 +29,7 @@ def main():
 			valid = cur_state.validMove(move)
 			if valid:
 				cur_state = cur_state.update(move)
-				if cur_state.isGoal(move):
+				if cur_state.isGoal()[0]:
 					goal = True
 					break
 			os.system('clear')

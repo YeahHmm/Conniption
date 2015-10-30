@@ -92,24 +92,31 @@ class SystemState:
 
 		return moves
 
+	def isGoal(self):
+		if self._prev_move._action == 'flip':
+			return self.isGoalFlipped()
+		elif self._prev_move._action == 'place':
+			return self.isGoalPlaced()
+		else:
+			return False, 2
 
-	def isGoal(self, mv):
-		row = len(self._board[mv._column])-1
+	def isGoalPlaced(self):
+		row = len(self._board[self._prev_move._column])-1
 		matrix = deepcopy(self.filledMatrix())
-		col = copy(mv._column)
+		col = copy(self._prev_move._column)
 
 		if matrix[col][row] != 2: #Avoid test in case of none or flip moves
 			# Horizontal
 			i = col - 3 if col > 3 else 0
 			while i <= col and i <= SystemState.NUM_COLS-4:
 				if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-					return True
+					return True, self._cur_player
 				i += 1
 			# Vertical
-			j = row - 3 if (row%7) > 3 else 0
+			j = row - 3 if row > 3 else 0
 			while j <= row and j <= SystemState.NUM_ROWS-4:
 				if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-					return True
+					return True, self._cur_player
 				j += 1
 			# Diagonal Left to rigth down
 			startCol = col - 3 if col > 3 else 0
@@ -118,7 +125,7 @@ class SystemState:
 				if startRow > 2 and startRow <6:
 					if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
 					==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
-						return True
+						return True, self._cur_player
 				startCol += 1
 				startRow -= 1
 			# Diagonal left to Right up
@@ -128,11 +135,54 @@ class SystemState:
 				if startRow >= 0 and startRow <4:
 					if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
 					==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
-						return True
+						return True, self._cur_player
 				startCol += 1
 				startRow += 1
 
-		return False
+		return False, 2
+
+	def isGoalFlipped(self):
+		matrix = deepcopy(self.filledMatrix())
+		for j in range(SystemState.NUM_ROWS):
+			for i in range(SystemState.NUM_COLS):
+				col = i
+				row = j
+				if matrix[col][row] != 2: #Avoid test in case of none or flip moves
+					# Horizontal
+					i = col - 3 if col > 3 else 0
+					while i <= col and i <= SystemState.NUM_COLS-4:
+						if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
+							return True, self._cur_player
+						i += 1
+					# Vertical
+					j = row - 3 if (row%7) > 3 else 0
+					while j <= row and j <= SystemState.NUM_ROWS-4:
+						if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
+							return True, self._cur_player
+						j += 1
+					# Diagonal Left to rigth down
+					startCol = col - 3 if col > 3 else 0
+					startRow = row + 3 if col > 3 else row + col
+					while startCol <= col and startCol <= 3:
+						if startRow > 2 and startRow <6:
+							if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
+							==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
+								return True, self._cur_player
+						startCol += 1
+						startRow -= 1
+					# Diagonal left to Right up
+					startCol = col - 3 if col > 3 else 0
+					startRow = row - 3 if col > 3 else row - col
+					while startCol <= col and startCol <= 3:
+						if startRow >= 0 and startRow <4:
+							if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
+							==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
+								return True, self._cur_player
+						startCol += 1
+						startRow += 1
+		return False, 2
+
+
 
 	def filledMatrix(self):
 		if self._is_down:
