@@ -34,7 +34,7 @@ class SystemState:
 	MAX_FLIPS = 4
 
 	SOLS_GRAPH = None
-	EMPTY_CELL_VAL = 2
+	EMPTY_VAL = 2
 
 	def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
 			cur_player=0, num_flips=(0, 0), is_down=0):
@@ -107,7 +107,7 @@ class SystemState:
 			vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._cur_player, sol))
 			vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._cur_player), sol)
 			vals_lose = list(vals_lose)
-			vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_CELL_VAL, sol)
+			vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_VAL, sol)
 
 			if len(vals_win) == slen:
 				return (True, self._cur_player)
@@ -168,7 +168,7 @@ class SystemState:
 		return False
 
 	def filledMatrix(self):
-		e = SystemState.EMPTY_CELL_VAL
+		e = SystemState.EMPTY_VAL
 		if self._is_down:
 			filled = list(map(lambda c: c[::-1] + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
 		else:
