@@ -75,22 +75,18 @@ class SystemState:
 
 	def isGoal(self, mv):
 		row = len(self._board[mv._column])-1
-		print (row)
 		matrix = deepcopy(self.filledMatrix())
 		col = copy(mv._column)
-		print (col)
 		# Horizontal
 		i = col - 3 if col > 3 else 0
 		while i <= col and i <= SystemState.NUM_COLS-4:
 			if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-				print('Horizontal' + str(matrix[row][i]) + ' ' + str(matrix[row][i+1]))
 				return True
 			i += 1
 		# Vertical
 		j = row - 3 if (row%7) > 3 else 0
 		while j <= row and j <= SystemState.NUM_ROWS-4:
 			if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-				print('Vertical'+ str(matrix[col][j]) + ' ' + str(matrix[col][j+3]))
 				return True
 			j += 1
 		# Diagonal Left to rigth down
@@ -113,8 +109,8 @@ class SystemState:
 					return True
 			startCol += 1
 			startRow += 1
-
 		return False
+
 	def filledMatrix(self):
 		if self._is_down:
 			filled = list(map(lambda c: c[::-1] + [2]*(SystemState.NUM_ROWS - len(c)), self._board))
