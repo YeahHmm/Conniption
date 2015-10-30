@@ -8,8 +8,9 @@ def main():
 	cur_state = SystemState()
 	valid = False
 	prevMv = Move()
-	goal = False
-	while True:
+	is_goal = False
+	winner = 2
+	while not is_goal:
 		os.system('clear')
 		print (cur_state)
 		print(prevMv, valid)
@@ -21,25 +22,27 @@ def main():
 				pos = -1
 			else:
 				val = input("input action (place [1-7]): ").strip().split(' ')
-				key = val[0]
-				if len(val) == 2:
-					pos = int(val[1]) - 1
+				key = 'place'
+				pos = int(val[-1]) - 1
 			move = Move(key, cur_state._cur_player, pos)
 			prevMv = move
 			valid = cur_state.validMove(move)
 			if valid:
 				cur_state = cur_state.update(move)
-				if cur_state.isGoal()[0]:
-					goal = True
+				is_goal, winner = cur_state.isGoal()
+				if is_goal:
 					break
 			os.system('clear')
 			print (cur_state)
-		if goal == True:
-			break
 
 	os.system('clear')
 	print (cur_state)
-	print ('Game over')
+	if winner == 0 or winner == 1:
+		win_string = 'A' if winner == 0 else 'B' if winner == 1 else '-'
+		print('Player %s wins!' %win_string)
+	else:
+		print('Draw!')
+
 
 if __name__ == "__main__":
 	main()
