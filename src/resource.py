@@ -63,18 +63,16 @@ class SystemState:
 		if self._cur_player != mv._player:
 			return False
 
-		if mv._action == 'flip' or mv._action == 'none':
-			if self._prev_move._action != 'flip':
-				if self._prev_move._player != mv._player:
+		if mv._player == self._prev_move._player:
+			if self._prev_move._action != 'place':
+				if mv._action == 'place':
 					return True
-				elif self._prev_move._action != 'none':
-					return True
-		elif mv._action == 'place':
-			if self._prev_move._action != mv._action:
-				if self._prev_move._player == mv._player:
-					if mv._column >= 0 and mv._column < SystemState.NUM_COLS:
-						if len(self._board[mv._column]) < SystemState.NUM_ROWS:
-							return True
+
+		if self._prev_move._action != 'flip':
+			return mv._action != 'place'
+		else:
+			return mv._action == 'none'
+
 		return False
 
 	def isGoal(self):
