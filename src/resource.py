@@ -1,12 +1,9 @@
 from copy import deepcopy, copy
-from itertools import repeat, chain
+from itertools import repeat, product
 import os
 
 from graph import Graph
 
-
-def _buildSols():
-	return None
 
 class Move:
 	action = ['flip', 'place', 'none']
@@ -32,9 +29,11 @@ class Move:
 class SystemState:
 	NUM_COLS = 7
 	NUM_ROWS = 6
+	LEN_SOL = 4
+
 	MAX_FLIPS = 4
 
-	SOLS_GRAPH = _buildSols()
+	SOLS_GRAPH = None
 
 	def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
 			cur_player=0, num_flips=(0, 0), is_down=0):
@@ -173,3 +172,37 @@ class SystemState:
 			toPrint += '\nPlayer 2:'
 
 		return toPrint
+	
+	@staticmethod
+	def _buildSols():
+		ncols = SystemState.NUM_COLS
+		nrows = SystemState.NUM_ROWS
+		slen = SystemState.LEN_SOL
+
+		graph = Graph()
+		chain_dict = {}
+
+		horiz_i = range(ncols - (slen - 1))
+		horiz_j = range(nrows)
+		horiz_start = product(horiz_i, horiz_j)
+		for i, j in horiz_start:
+			xlist = range(i, i + slen)
+			chain = tuple((x, j) for x in xlist)
+			graph.addVertex(chain)
+		
+		vert_i = range(ncols)
+		vert_j = range(nrows - (slen - 1))
+		vert_start = product(vert_i, vert_j)
+		for i, j in vert_start:
+			ylist = range(j, j + slen)
+			chain = tuple((i, y) for y in plist)
+			graph.addVertex(chain)
+
+		for chain in graph.getVertices():
+			for p in chain:
+				k = p[0] * ncols + p[1]
+				if k not in chain_dict:
+					chain_dict[k] = set()
+				chain_dict[k].add(chain)
+
+SystemState._buildSols()
