@@ -1,5 +1,5 @@
 from copy import deepcopy, copy
-from itertools import repeat, product
+from itertools import repeat, product, combinations
 import os
 
 from graph import Graph
@@ -195,14 +195,45 @@ class SystemState:
 		vert_start = product(vert_i, vert_j)
 		for i, j in vert_start:
 			ylist = range(j, j + slen)
-			chain = tuple((i, y) for y in plist)
+			chain = tuple((i, y) for y in ylist)
+			graph.addVertex(chain)
+
+		rdiag_i = range(ncols - (slen - 1))
+		rdiag_j = range(nrows - (slen - 1))
+		rdiag_start = product(rdiag_i, rdiag_j)
+		for i, j in rdiag_start:
+			xlist = range(i, i + slen)
+			ylist = range(j, j + slen)
+			chain = tuple((x, y) for x, y in zip(xlist, ylist))
+			graph.addVertex(chain)
+
+		ldiag_i = range(slen - 1, ncols)
+		ldiag_j = range(nrows - (slen - 1))
+		ldiag_start = product(ldiag_i, ldiag_j)
+		for i, j in ldiag_start:
+			xlist = range(i, i - slen - 1, -1)
+			ylist = range(j, j + slen)
+			chain = tuple((x, y) for x, y in zip(xlist, ylist))
 			graph.addVertex(chain)
 
 		for chain in graph.getVertices():
-			for p in chain:
-				k = p[0] * ncols + p[1]
+			keys = set()
+			for i in range(1, slen - 1):
+				keys.update(combinations(chain[1:], i))
+				keys.update(combinations(chain[:3], i))
+			for k in keys:
 				if k not in chain_dict:
 					chain_dict[k] = set()
 				chain_dict[k].add(chain)
+
+		for k in chain_dict:
+			for chain in chain_dict[k]:
+				for c in chain_dict[k]:
+					if c is chain:
+						continue
+					graph.addEdge(chain, c, k)
+
+		SystemState.SOLS_GRAPH = graph
+
 
 SystemState._buildSols()
