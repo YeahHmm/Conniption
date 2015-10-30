@@ -13,17 +13,17 @@ class Move:
 		self._player = player
 		self._column = column
 
-	def toTupple(self):
+	def toTuple(self):
 		return (self._player, self._action, self._column)
 
 	def __eq__(self, mv):
-		return self.toTupple() == mv.toTupple()
+		return self.toTuple() == mv.toTuple()
 
 	def __hash__(self):
-		return self.toTupple().__hash__()
+		return self.toTuple().__hash__()
 
 	def __repr__(self):
-		return self.toTupple().__str__()
+		return self.toTuple().__str__()
 
 
 class SystemState:
@@ -34,6 +34,7 @@ class SystemState:
 	MAX_FLIPS = 4
 
 	SOLS_GRAPH = None
+	EMPTY_CELL_VAL = 2
 
 	def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
 			cur_player=0, num_flips=(0, 0), is_down=0):
@@ -83,7 +84,47 @@ class SystemState:
 							return True
 		return False
 
-	def isGoal(self, mv):
+	def isGoal(self, check_none=False):
+		if self._prev_move._action == 'flip':
+			return self._isGoal_flip()
+		elif self._prev_move._action == 'place':
+			return self._isGoal_place()
+		elif self._prev_move._action == 'none' and check_none:
+			return self._isGoal_flip()
+		
+		return (False, 2)
+
+	def _isGoal_flip(self):
+		slen = SystemState.LEN_SOL
+		sgraph = SystemState.SOLS_GRAPH
+		sdict = {s : True for s in sgraph.getVertices()}
+		board = self.filledMatrix()
+
+		for sol in sdict:
+			if not sdict[sol]:
+				continue
+
+			vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._cur_player, sol))
+			vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._cur_player), sol)
+			vals_lose = list(vals_lose)
+			vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_CELL_VAL, sol)
+
+			if len(vals_win) == slen:
+				return (True, self._cur_player)
+			elif len(vals_lose) == slen:
+				return (True, int(not self._cur_player))
+			
+			for cell in vals_none:
+				for s in sgraph.neighbors(sol, (cell,)):
+					sdict[s] = False
+
+			for pair in map(lambda p: tuple(sorted(p)), product(vals_win, vals_lose)):
+				for s in sgraph.neighbors(sol, pair):
+					sdict[s] = False
+
+		return (False, 2)
+
+	def _isGoal_place(self, mv):
 		row = len(self._board[mv._column])-1
 		print (row)
 		matrix = deepcopy(self.filledMatrix())
@@ -125,46 +166,49 @@ class SystemState:
 			startRow += 1
 
 		return False
-	def filledMatrix(self):
-		if self._is_down:
-			filled = list(map(lambda c: c[::-1] + [2]*(SystemState.NUM_ROWS - len(c)), self._board))
-		else:
-			filled = list(map(lambda c: c + [2]*(SystemState.NUM_ROWS - len(c)), self._board))
-		return deepcopy(filled)
 
-	def toTupple(self):
+	def filledMatrix(self):
+		e = SystemState.EMPTY_CELL_VAL
+		if self._is_down:
+			filled = list(map(lambda c: c[::-1] + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+		else:
+			filled = list(map(lambda c: c + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+		return filled
+
+	def getBoardTuple(self):
+		return tuple(map(tuple, self._board))
+
+	def toTuple(self):
 		boardTup = self.getBoardTuple()
 		return (boardTup, self._prev_move, self._cur_player, self._num_flips, self._is_down)
 
-	def getBoardTupple(self):
-		return tuple(map(tuple, self._board))
-
 	def __eq__(self, state):
-		return (self.getBoardTupple(), self._is_down) == (mv.getBoardTupple(), mv._is_down)
+		return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
 
 	def __hash__(self):
-		return (self.getBoardTupple(), self._is_down).__hash__()
+		return (self.getBoardTuple(), self._is_down).__hash__()
 
 	def __repr__(self):
-		return self.toTupple().__repr__()
+		return self.toTuple().__repr__()
 
 	def __str__(self):
 		filled = self.filledMatrix()
+		filled = list(zip(*filled))[::-1]
 		conv = lambda k: 'X' if k == 0 else 'O' if k == 1 else ' '
 		filled = list(map(lambda c: list(map(conv, c)), filled))
 
 		toPrint = ' ' + '----' * 14 + '\n|'
-		for j in range(SystemState.NUM_ROWS - 1, -1, -1):
-			for i in range(SystemState.NUM_COLS):
+		for i in range(SystemState.NUM_ROWS):
+			for j in range(SystemState.NUM_COLS):
 				toPrint += '{0:^7}|'.format(filled[i][j])
 
-				if i % 7 == 6:
+				if j % SystemState.NUM_COLS == SystemState.NUM_COLS - 1:
 					toPrint += '\n'
 					toPrint += ' ' + '----' * 14 + '\n|'
 		toPrint = toPrint[:-1]
 
 		toPrint += ' '
-		for i in range(7):
+		for i in range(SystemState.NUM_COLS):
 			toPrint += '{0:^7} '.format(i+1)
 		if self._cur_player == 0:
 			toPrint += '\nPlayer 1:'
@@ -182,35 +226,35 @@ class SystemState:
 		graph = Graph()
 		chain_dict = {}
 
-		horiz_i = range(ncols - (slen - 1))
-		horiz_j = range(nrows)
-		horiz_start = product(horiz_i, horiz_j)
-		for i, j in horiz_start:
+		vert_i = range(ncols - (slen - 1))
+		vert_j = range(nrows)
+		vert_start = product(vert_i, vert_j)
+		for i, j in vert_start:
 			xlist = range(i, i + slen)
 			chain = tuple((x, j) for x in xlist)
 			graph.addVertex(chain)
 		
-		vert_i = range(ncols)
-		vert_j = range(nrows - (slen - 1))
-		vert_start = product(vert_i, vert_j)
-		for i, j in vert_start:
+		horiz_i = range(ncols)
+		horiz_j = range(nrows - (slen - 1))
+		horiz_start = product(horiz_i, horiz_j)
+		for i, j in horiz_start:
 			ylist = range(j, j + slen)
 			chain = tuple((i, y) for y in ylist)
 			graph.addVertex(chain)
 
-		rdiag_i = range(ncols - (slen - 1))
-		rdiag_j = range(nrows - (slen - 1))
-		rdiag_start = product(rdiag_i, rdiag_j)
-		for i, j in rdiag_start:
+		ldiag_i = range(ncols - (slen - 1))
+		ldiag_j = range(nrows - (slen - 1))
+		ldiag_start = product(ldiag_i, ldiag_j)
+		for i, j in ldiag_start:
 			xlist = range(i, i + slen)
 			ylist = range(j, j + slen)
 			chain = tuple((x, y) for x, y in zip(xlist, ylist))
 			graph.addVertex(chain)
 
-		ldiag_i = range(slen - 1, ncols)
-		ldiag_j = range(nrows - (slen - 1))
-		ldiag_start = product(ldiag_i, ldiag_j)
-		for i, j in ldiag_start:
+		rdiag_i = range(slen - 1, ncols)
+		rdiag_j = range(nrows - (slen - 1))
+		rdiag_start = product(rdiag_i, rdiag_j)
+		for i, j in rdiag_start:
 			xlist = range(i, i - slen - 1, -1)
 			ylist = range(j, j + slen)
 			chain = tuple((x, y) for x, y in zip(xlist, ylist))
