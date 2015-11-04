@@ -1,0 +1,50 @@
+Team Members:
+-Armando Suarez
+-Justin Trotter
+-Alex Gunter
+
+Game: Conniption
+
+Language: Python 3
+
+Program Description:
+	- Alpha/Beta Pruning with Minimax
+	- At least Human vs AI. Hopefully AI vs AI as well
+	- Simple ASCII interface on the command line using stdin/stdout
+
+Data Structures:
+	- SystemState
+		- board
+			- a list of lists
+			- values 0 or 1 added to columns, corresponding to which player placed the disk
+			- empty slots are absent
+			- when processing board, columns are iterated either in forward or reverse depending on
+				whether the board is flipped or not
+		- current player
+		- flips remaining for each player
+		- current turn stage
+		- previous move
+		- whether board is currently flipped or not
+	- Move
+		- action (place, flip, none)
+		- player
+		- column (-1 if action is not 'place')
+	- Solution Graph
+		- A directed graph with possible solution locations as nodes and shared cell coordinates as edges
+		- used to optimize goal searching
+		- generated once and reused
+
+Programmer Roles:
+	- Alex Gunter: Architecture and Algorithms
+	- Armando Suarez: Architecture and Algorithms
+	- Justin Trotter: User Experience
+
+Testing:
+	- For Human vs AI, we'll run through games manually and probably record the moves made and various other stats
+	- For AI vs AI, we'll let the program run to completion with minimal I/O. After a number of games, we'll output
+		similar statistics to Human vs AI.
+
+Special:
+	- If Justin has enough time, he will try to implement a deep neural network for the game that
+		uses the results as input.
+	- Maybe a GUI
