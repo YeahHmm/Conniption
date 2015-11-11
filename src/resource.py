@@ -6,335 +6,335 @@ from graph import Graph
 
 
 class Move:
-	action = ['flip', 'place', 'none']
+    action = ['flip', 'place', 'none']
 
-	def __init__(self, action='none', player=-1, column=-1):
-		self._action = action
-		self._player = player
-		self._column = column
+    def __init__(self, action='none', player=-1, column=-1):
+        self._action = action
+        self._player = player
+        self._column = column
 
-	def toTuple(self):
-		return (self._player, self._action, self._column)
+    def toTuple(self):
+        return (self._player, self._action, self._column)
 
-	def __eq__(self, mv):
-		return self.toTuple() == mv.toTuple()
+    def __eq__(self, mv):
+        return self.toTuple() == mv.toTuple()
 
-	def __hash__(self):
-		return self.toTuple().__hash__()
+    def __hash__(self):
+        return self.toTuple().__hash__()
 
-	def __repr__(self):
-		return self.toTuple().__str__()
+    def __repr__(self):
+        return self.toTuple().__str__()
 
 
 class SystemState:
-	NUM_COLS = 7
-	NUM_ROWS = 6
-	LEN_SOL = 4
+    NUM_COLS = 7
+    NUM_ROWS = 6
+    LEN_SOL = 4
 
-	MAX_FLIPS = 4
+    MAX_FLIPS = 4
 
-	SOLS_GRAPH = None
-	EMPTY_VAL = 2
+    SOLS_GRAPH = None
+    EMPTY_VAL = 2
 
-	def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
-			cur_player=0, num_flips=(0, 0), is_down=0):
-		self._board = board
-		self._prev_move = prev_move
-		self._cur_player = cur_player
-		self._num_flips = num_flips
-		self._is_down = is_down
+    def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
+            cur_player=0, num_flips=(0, 0), is_down=0):
+        self._board = board
+        self._prev_move = prev_move
+        self._cur_player = cur_player
+        self._num_flips = num_flips
+        self._is_down = is_down
 
-	def update(self, mv):
-		new_board = deepcopy(self._board)
-		new_player = self._cur_player
-		new_flips = deepcopy(self._num_flips)
-		new_down = self._is_down
+    def update(self, mv):
+        new_board = deepcopy(self._board)
+        new_player = self._cur_player
+        new_flips = deepcopy(self._num_flips)
+        new_down = self._is_down
 
-		if mv._action == 'flip':
-			if self._prev_move._player == mv._player:
-				new_player = int(not new_player)
-			new_flips = tuple(map(lambda i: new_flips[i] + (i == self._cur_player), range(2)))
-			new_down = int(not new_down)
-		elif mv._action == 'place':
-			if self._is_down:
-				new_board[mv._column] = [self._cur_player] + new_board[mv._column]
-			else:
-				new_board[mv._column] = new_board[mv._column] + [self._cur_player]
-		elif mv._action == 'none':
-			if self._prev_move._player == mv._player:
-				new_player = int(not new_player)
+        if mv._action == 'flip':
+            if self._prev_move._player == mv._player:
+                new_player = int(not new_player)
+            new_flips = tuple(map(lambda i: new_flips[i] + (i == self._cur_player), range(2)))
+            new_down = int(not new_down)
+        elif mv._action == 'place':
+            if self._is_down:
+                new_board[mv._column] = [self._cur_player] + new_board[mv._column]
+            else:
+                new_board[mv._column] = new_board[mv._column] + [self._cur_player]
+        elif mv._action == 'none':
+            if self._prev_move._player == mv._player:
+                new_player = int(not new_player)
 
-		return SystemState(new_board, mv, new_player, new_flips, new_down)
+        return SystemState(new_board, mv, new_player, new_flips, new_down)
 
-	def validMove(self, mv):
-		if self._cur_player != mv._player:
-			return False
+    def validMove(self, mv):
+        if self._cur_player != mv._player:
+            return False
 
-		if mv._player == self._prev_move._player:
-			if self._prev_move._action != 'place':
-				if mv._action == 'place':
-					return True
+        if mv._player == self._prev_move._player:
+            if self._prev_move._action != 'place':
+                if mv._action == 'place':
+                    return True
 
-		if self._prev_move._action != 'flip':
-			return mv._action != 'place'
-		else:
-			return mv._action == 'none'
+        if self._prev_move._action != 'flip':
+            return mv._action != 'place'
+        else:
+            return mv._action == 'none'
 
-		return False
+        return False
 
-	def genMoves(self):
-		moves = set()
+    def genMoves(self):
+        moves = set()
 
-		if self._cur_player == self._prev_move._player:
-			if self._prev_move._action == 'flip' or self._prev_move._action == 'none':
-				for i in range(SystemState.NUM_COLS):
-					moves.add(Move('place', self._cur_player, i))
-				return moves
+        if self._cur_player == self._prev_move._player:
+            if self._prev_move._action == 'flip' or self._prev_move._action == 'none':
+                for i in range(SystemState.NUM_COLS):
+                    moves.add(Move('place', self._cur_player, i))
+                return moves
 
-		if self._prev_move._action != 'flip':
-			moves.add(Move('flip', self._cur_player))
-			moves.add(Move('none', self._cur_player))
-		else:
-			moves.add(Move('none', self._cur_player))
+        if self._prev_move._action != 'flip':
+            moves.add(Move('flip', self._cur_player))
+            moves.add(Move('none', self._cur_player))
+        else:
+            moves.add(Move('none', self._cur_player))
 
-		return moves
+        return moves
 
-	def isGoal(self, check_none=False):
-		if self._prev_move._action == 'flip':
-			return self._isGoal_flip()
-		elif self._prev_move._action == 'place':
-			return self._isGoal_place()
-		elif self._prev_move._action == 'none' and check_none:
-			return self._isGoal_flip()
+    def isGoal(self, check_none=False):
+        if self._prev_move._action == 'flip':
+            return self._isGoal_flip()
+        elif self._prev_move._action == 'place':
+            return self._isGoal_place()
+        elif self._prev_move._action == 'none' and check_none:
+            return self._isGoal_flip()
 
-		return (False, 2)
-
-
-	def _isGoal_flip(self):
-		slen = SystemState.LEN_SOL
-		sgraph = SystemState.SOLS_GRAPH
-		sdict = {s : True for s in sgraph.getVertices()}
-		board = self.filledMatrix()
-
-		for sol in sdict:
-			if not sdict[sol]:
-				continue
-
-			vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._cur_player, sol))
-			vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._cur_player), sol)
-			vals_lose = list(vals_lose)
-			vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_VAL, sol)
-
-			if len(vals_win) == slen:
-				return (True, self._cur_player)
-			elif len(vals_lose) == slen:
-				return (True, int(not self._cur_player))
-
-			for cell in vals_none:
-				for s in sgraph.neighbors(sol, (cell,)):
-					sdict[s] = False
-
-			for pair in map(lambda p: tuple(sorted(p)), product(vals_win, vals_lose)):
-				for s in sgraph.neighbors(sol, pair):
-					sdict[s] = False
-
-		return (False, 2)
+        return (False, 2)
 
 
-	def _isGoal_place(self):
-		row = len(self._board[self._prev_move._column])-1
-		matrix = deepcopy(self.filledMatrix())
-		col = copy(self._prev_move._column)
+    def _isGoal_flip(self):
+        slen = SystemState.LEN_SOL
+        sgraph = SystemState.SOLS_GRAPH
+        sdict = {s : True for s in sgraph.getVertices()}
+        board = self.filledMatrix()
 
-		if matrix[col][row] != 2: #Avoid test in case of none or flip moves
-			# Horizontal
-			i = col - 3 if col > 3 else 0
-			while i <= col and i <= SystemState.NUM_COLS-4:
-				if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-					return True, self._cur_player
-				i += 1
-			# Vertical
-			j = row - 3 if row > 3 else 0
-			while j <= row and j <= SystemState.NUM_ROWS-4:
-				if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-					return True, self._cur_player
-				j += 1
-			# Diagonal Left to rigth down
-			startCol = col - 3 if col > 3 else 0
-			startRow = row + 3 if col > 3 else row + col
-			while startCol <= col and startCol <= 3:
-				if startRow > 2 and startRow <6:
-					if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
-					==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
-						return True, self._cur_player
-				startCol += 1
-				startRow -= 1
-			# Diagonal left to Right up
-			startCol = col - 3 if col > 3 else 0
-			startRow = row - 3 if col > 3 else row - col
-			while startCol <= col and startCol <= 3:
-				if startRow >= 0 and startRow <4:
-					if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
-					==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
-						return True, self._cur_player
-				startCol += 1
-				startRow += 1
+        for sol in sdict:
+            if not sdict[sol]:
+                continue
 
-		return False, 2
+            vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._cur_player, sol))
+            vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._cur_player), sol)
+            vals_lose = list(vals_lose)
+            vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_VAL, sol)
 
-	def isGoalFlipped(self):
-		matrix = deepcopy(self.filledMatrix())
-		for j in range(SystemState.NUM_ROWS):
-			for i in range(SystemState.NUM_COLS):
-				col = i
-				row = j
-				if matrix[col][row] != 2: #Avoid test in case of none or flip moves
-					# Horizontal
-					i = col - 3 if col > 3 else 0
-					while i <= col and i <= SystemState.NUM_COLS-4:
-						if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-							return True, self._cur_player
-						i += 1
-					# Vertical
-					j = row - 3 if (row%7) > 3 else 0
-					while j <= row and j <= SystemState.NUM_ROWS-4:
-						if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-							return True, self._cur_player
-						j += 1
-					# Diagonal Left to rigth down
-					startCol = col - 3 if col > 3 else 0
-					startRow = row + 3 if col > 3 else row + col
-					while startCol <= col and startCol <= 3:
-						if startRow > 2 and startRow <6:
-							if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
-							==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
-								return True, self._cur_player
-						startCol += 1
-						startRow -= 1
-					# Diagonal left to Right up
-					startCol = col - 3 if col > 3 else 0
-					startRow = row - 3 if col > 3 else row - col
-					while startCol <= col and startCol <= 3:
-						if startRow >= 0 and startRow <4:
-							if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
-							==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
-								return True, self._cur_player
-						startCol += 1
-						startRow += 1
-		return False, 2
+            if len(vals_win) == slen:
+                return (True, self._cur_player)
+            elif len(vals_lose) == slen:
+                return (True, int(not self._cur_player))
+
+            for cell in vals_none:
+                for s in sgraph.neighbors(sol, (cell,)):
+                    sdict[s] = False
+
+            for pair in map(lambda p: tuple(sorted(p)), product(vals_win, vals_lose)):
+                for s in sgraph.neighbors(sol, pair):
+                    sdict[s] = False
+
+        return (False, 2)
 
 
-	def filledMatrix(self):
-		e = SystemState.EMPTY_VAL
-		if self._is_down:
-			filled = list(map(lambda c: c[::-1] + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
-		else:
-			filled = list(map(lambda c: c + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
-		return filled
+    def _isGoal_place(self):
+        row = len(self._board[self._prev_move._column])-1
+        matrix = deepcopy(self.filledMatrix())
+        col = copy(self._prev_move._column)
 
-	def getBoardTuple(self):
-		return tuple(map(tuple, self._board))
+        if matrix[col][row] != 2: #Avoid test in case of none or flip moves
+            # Horizontal
+            i = col - 3 if col > 3 else 0
+            while i <= col and i <= SystemState.NUM_COLS-4:
+                if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
+                    return True, self._cur_player
+                i += 1
+            # Vertical
+            j = row - 3 if row > 3 else 0
+            while j <= row and j <= SystemState.NUM_ROWS-4:
+                if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
+                    return True, self._cur_player
+                j += 1
+            # Diagonal Left to rigth down
+            startCol = col - 3 if col > 3 else 0
+            startRow = row + 3 if col > 3 else row + col
+            while startCol <= col and startCol <= 3:
+                if startRow > 2 and startRow <6:
+                    if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
+                    ==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
+                        return True, self._cur_player
+                startCol += 1
+                startRow -= 1
+            # Diagonal left to Right up
+            startCol = col - 3 if col > 3 else 0
+            startRow = row - 3 if col > 3 else row - col
+            while startCol <= col and startCol <= 3:
+                if startRow >= 0 and startRow <4:
+                    if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
+                    ==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
+                        return True, self._cur_player
+                startCol += 1
+                startRow += 1
 
-	def toTuple(self):
-		boardTup = self.getBoardTuple()
-		return (boardTup, self._prev_move, self._cur_player, self._num_flips, self._is_down)
+        return False, 2
 
-	def __eq__(self, state):
-		return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
+    def isGoalFlipped(self):
+        matrix = deepcopy(self.filledMatrix())
+        for j in range(SystemState.NUM_ROWS):
+            for i in range(SystemState.NUM_COLS):
+                col = i
+                row = j
+                if matrix[col][row] != 2: #Avoid test in case of none or flip moves
+                    # Horizontal
+                    i = col - 3 if col > 3 else 0
+                    while i <= col and i <= SystemState.NUM_COLS-4:
+                        if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
+                            return True, self._cur_player
+                        i += 1
+                    # Vertical
+                    j = row - 3 if (row%7) > 3 else 0
+                    while j <= row and j <= SystemState.NUM_ROWS-4:
+                        if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
+                            return True, self._cur_player
+                        j += 1
+                    # Diagonal Left to rigth down
+                    startCol = col - 3 if col > 3 else 0
+                    startRow = row + 3 if col > 3 else row + col
+                    while startCol <= col and startCol <= 3:
+                        if startRow > 2 and startRow <6:
+                            if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
+                            ==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
+                                return True, self._cur_player
+                        startCol += 1
+                        startRow -= 1
+                    # Diagonal left to Right up
+                    startCol = col - 3 if col > 3 else 0
+                    startRow = row - 3 if col > 3 else row - col
+                    while startCol <= col and startCol <= 3:
+                        if startRow >= 0 and startRow <4:
+                            if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
+                            ==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
+                                return True, self._cur_player
+                        startCol += 1
+                        startRow += 1
+        return False, 2
 
-	def __hash__(self):
-		return (self.getBoardTuple(), self._is_down).__hash__()
 
-	def __repr__(self):
-		return self.toTuple().__repr__()
+    def filledMatrix(self):
+        e = SystemState.EMPTY_VAL
+        if self._is_down:
+            filled = list(map(lambda c: c[::-1] + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+        else:
+            filled = list(map(lambda c: c + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+        return filled
 
-	def __str__(self):
-		filled = self.filledMatrix()
-		filled = list(zip(*filled))[::-1]
-		conv = lambda k: 'X' if k == 0 else 'O' if k == 1 else ' '
-		filled = list(map(lambda c: list(map(conv, c)), filled))
+    def getBoardTuple(self):
+        return tuple(map(tuple, self._board))
 
-		toPrint = ' ' + '----' * 14 + '\n|'
-		for i in range(SystemState.NUM_ROWS):
-			for j in range(SystemState.NUM_COLS):
-				toPrint += '{0:^7}|'.format(filled[i][j])
+    def toTuple(self):
+        boardTup = self.getBoardTuple()
+        return (boardTup, self._prev_move, self._cur_player, self._num_flips, self._is_down)
 
-				if j % SystemState.NUM_COLS == SystemState.NUM_COLS - 1:
-					toPrint += '\n'
-					toPrint += ' ' + '----' * 14 + '\n|'
-		toPrint = toPrint[:-1]
+    def __eq__(self, state):
+        return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
 
-		toPrint += ' '
-		for i in range(SystemState.NUM_COLS):
-			toPrint += '{0:^7} '.format(i+1)
-		if self._cur_player == 0:
-			toPrint += '\nPlayer A: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._cur_player])
-		else:
-			toPrint += '\nPlayer B: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._cur_player])
+    def __hash__(self):
+        return (self.getBoardTuple(), self._is_down).__hash__()
 
-		return toPrint
+    def __repr__(self):
+        return self.toTuple().__repr__()
 
-	@staticmethod
-	def _buildSols():
-		ncols = SystemState.NUM_COLS
-		nrows = SystemState.NUM_ROWS
-		slen = SystemState.LEN_SOL
+    def __str__(self):
+        filled = self.filledMatrix()
+        filled = list(zip(*filled))[::-1]
+        conv = lambda k: 'X' if k == 0 else 'O' if k == 1 else ' '
+        filled = list(map(lambda c: list(map(conv, c)), filled))
 
-		graph = Graph()
-		chain_dict = {}
+        toPrint = ' ' + '----' * 14 + '\n|'
+        for i in range(SystemState.NUM_ROWS):
+            for j in range(SystemState.NUM_COLS):
+                toPrint += '{0:^7}|'.format(filled[i][j])
 
-		vert_i = range(ncols - (slen - 1))
-		vert_j = range(nrows)
-		vert_start = product(vert_i, vert_j)
-		for i, j in vert_start:
-			xlist = range(i, i + slen)
-			chain = tuple((x, j) for x in xlist)
-			graph.addVertex(chain)
+                if j % SystemState.NUM_COLS == SystemState.NUM_COLS - 1:
+                    toPrint += '\n'
+                    toPrint += ' ' + '----' * 14 + '\n|'
+        toPrint = toPrint[:-1]
 
-		horiz_i = range(ncols)
-		horiz_j = range(nrows - (slen - 1))
-		horiz_start = product(horiz_i, horiz_j)
-		for i, j in horiz_start:
-			ylist = range(j, j + slen)
-			chain = tuple((i, y) for y in ylist)
-			graph.addVertex(chain)
+        toPrint += ' '
+        for i in range(SystemState.NUM_COLS):
+            toPrint += '{0:^7} '.format(i+1)
+        if self._cur_player == 0:
+            toPrint += '\nPlayer A: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._cur_player])
+        else:
+            toPrint += '\nPlayer B: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._cur_player])
 
-		ldiag_i = range(ncols - (slen - 1))
-		ldiag_j = range(nrows - (slen - 1))
-		ldiag_start = product(ldiag_i, ldiag_j)
-		for i, j in ldiag_start:
-			xlist = range(i, i + slen)
-			ylist = range(j, j + slen)
-			chain = tuple((x, y) for x, y in zip(xlist, ylist))
-			graph.addVertex(chain)
+        return toPrint
 
-		rdiag_i = range(slen - 1, ncols)
-		rdiag_j = range(nrows - (slen - 1))
-		rdiag_start = product(rdiag_i, rdiag_j)
-		for i, j in rdiag_start:
-			xlist = range(i, i - slen - 1, -1)
-			ylist = range(j, j + slen)
-			chain = tuple((x, y) for x, y in zip(xlist, ylist))
-			graph.addVertex(chain)
+    @staticmethod
+    def _buildSols():
+        ncols = SystemState.NUM_COLS
+        nrows = SystemState.NUM_ROWS
+        slen = SystemState.LEN_SOL
 
-		for chain in graph.getVertices():
-			keys = set()
-			for i in range(1, slen - 1):
-				keys.update(combinations(chain[1:], i))
-				keys.update(combinations(chain[:3], i))
-			for k in keys:
-				if k not in chain_dict:
-					chain_dict[k] = set()
-				chain_dict[k].add(chain)
+        graph = Graph()
+        chain_dict = {}
 
-		for k in chain_dict:
-			for chain in chain_dict[k]:
-				for c in chain_dict[k]:
-					if c is chain:
-						continue
-					graph.addEdge(chain, c, k)
+        vert_i = range(ncols - (slen - 1))
+        vert_j = range(nrows)
+        vert_start = product(vert_i, vert_j)
+        for i, j in vert_start:
+            xlist = range(i, i + slen)
+            chain = tuple((x, j) for x in xlist)
+            graph.addVertex(chain)
 
-		SystemState.SOLS_GRAPH = graph
+        horiz_i = range(ncols)
+        horiz_j = range(nrows - (slen - 1))
+        horiz_start = product(horiz_i, horiz_j)
+        for i, j in horiz_start:
+            ylist = range(j, j + slen)
+            chain = tuple((i, y) for y in ylist)
+            graph.addVertex(chain)
+
+        ldiag_i = range(ncols - (slen - 1))
+        ldiag_j = range(nrows - (slen - 1))
+        ldiag_start = product(ldiag_i, ldiag_j)
+        for i, j in ldiag_start:
+            xlist = range(i, i + slen)
+            ylist = range(j, j + slen)
+            chain = tuple((x, y) for x, y in zip(xlist, ylist))
+            graph.addVertex(chain)
+
+        rdiag_i = range(slen - 1, ncols)
+        rdiag_j = range(nrows - (slen - 1))
+        rdiag_start = product(rdiag_i, rdiag_j)
+        for i, j in rdiag_start:
+            xlist = range(i, i - slen - 1, -1)
+            ylist = range(j, j + slen)
+            chain = tuple((x, y) for x, y in zip(xlist, ylist))
+            graph.addVertex(chain)
+
+        for chain in graph.getVertices():
+            keys = set()
+            for i in range(1, slen - 1):
+                keys.update(combinations(chain[1:], i))
+                keys.update(combinations(chain[:3], i))
+            for k in keys:
+                if k not in chain_dict:
+                    chain_dict[k] = set()
+                chain_dict[k].add(chain)
+
+        for k in chain_dict:
+            for chain in chain_dict[k]:
+                for c in chain_dict[k]:
+                    if c is chain:
+                        continue
+                    graph.addEdge(chain, c, k)
+
+        SystemState.SOLS_GRAPH = graph
 
 
 SystemState._buildSols()
