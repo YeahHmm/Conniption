@@ -14,6 +14,9 @@ def printState(state, prompt='', inp=False):
     print (state)
     print (colored('Player A: ', 'cyan') + colored('* * * *', 'green', attrs=['bold']))
     print (colored('Player B: ', 'white') + colored('* * * *', 'green', attrs=['bold']))
+
+    # Added for testing ~Alex
+    print("\n%s's turn: Stage %d" % (str(state.getCurPlayer()), state._cur_stage+1))
     if prompt != '' and inp:
         return input(colored(prompt, 'yellow', attrs=['bold']))
     elif prompt != '' and not inp:

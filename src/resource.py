@@ -39,14 +39,15 @@ class SystemState:
     EMPTY_VAL = 2
 
     def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
-            player_pair=(Player(0), Player(1)), player=0, num_flips=(0, 0), \
-            is_down=0):
+            player_pair=(Player(0), Player(1)), player=0, \
+            num_flips=(0, 0), is_down=0, cur_stage=0):
         self._board = board
         self._prev_move = prev_move
         self._player_pair = player_pair
         self._player = player
         self._num_flips = num_flips
         self._is_down = is_down
+        self._cur_stage = cur_stage
 
     def update(self, mv):
         new_board = deepcopy(self._board)
@@ -54,6 +55,7 @@ class SystemState:
         new_player = self._player
         new_flips = deepcopy(self._num_flips)
         new_down = self._is_down
+        new_stage = (self._cur_stage + 1) % 3
 
         if mv._action == 'flip':
             if self._prev_move._player == mv._player:
@@ -69,7 +71,8 @@ class SystemState:
             if self._prev_move._player == mv._player:
                 new_player = int(not new_player)
 
-        return SystemState(new_board, mv, new_player_pair, new_player, new_flips, new_down)
+        return SystemState(new_board, mv, new_player_pair, new_player, \
+                new_flips, new_down, new_stage)
 
     def validMove(self, mv):
         if self._player != mv._player:
@@ -114,8 +117,11 @@ class SystemState:
 
         return (False, 2)
 
-    def get_player(self, i):
+    def getPlayer(self, i):
         return self._player_pair[i]
+
+    def getCurPlayer(self):
+        return self.getPlayer(self._player)
 
     def _isGoal_flip(self):
         slen = SystemState.LEN_SOL
