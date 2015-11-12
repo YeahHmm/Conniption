@@ -250,7 +250,8 @@ class SystemState:
 
     def toTuple(self):
         boardTup = self.getBoardTuple()
-        return (boardTup, self._prev_move, self._player, self._num_flips, self._is_down)
+        return (boardTup, self._prev_move, self._player_pair, self._player, \
+                self._num_flips, self._is_down)
 
     def __eq__(self, state):
         return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
