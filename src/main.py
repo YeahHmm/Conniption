@@ -1,4 +1,5 @@
 import os
+from termcolor import colored
 
 from printFunction import printboard
 from resource import SystemState
@@ -6,9 +7,15 @@ from resource import Move
 
 def printState(state, prompt='', inp=False):
     os.system('clear')
+    toPrint = ' '
+    for i in range(SystemState.NUM_COLS):
+        toPrint += '{0:^7} '.format(i+1)
+    print (toPrint)
     print (state)
+    print (colored('Player A: ', 'cyan') + colored('* * * *', 'green', attrs=['bold']))
+    print (colored('Player B: ', 'white') + colored('* * * *', 'green', attrs=['bold']))
     if prompt != '' and inp:
-        return input(prompt)
+        return input(colored(prompt, 'yellow', attrs=['bold']))
     elif prompt != '' and not inp:
         return print(prompt)
 

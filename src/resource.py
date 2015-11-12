@@ -1,5 +1,6 @@
 from copy import deepcopy, copy
 from itertools import repeat, product, combinations
+from termcolor import colored
 import os
 
 from graph import Graph
@@ -260,23 +261,21 @@ class SystemState:
         conv = lambda k: 'X' if k == 0 else 'O' if k == 1 else ' '
         filled = list(map(lambda c: list(map(conv, c)), filled))
 
-        toPrint = ' ' + '----' * 14 + '\n|'
+        toPrint = colored(' ' + '----' * 14 + '\n|', 'yellow')
         for i in range(SystemState.NUM_ROWS):
             for j in range(SystemState.NUM_COLS):
-                toPrint += '{0:^7}|'.format(filled[i][j])
+                if '{0:^7}'.format(filled[i][j]) == '   X   ':
+                    toPrint += colored('{0:^7}'.format(filled[i][j]),'cyan', 'on_cyan')
+                elif '{0:^7}'.format(filled[i][j]) == '   O   ':
+                    toPrint += colored('{0:^7}'.format(filled[i][j]),'white', 'on_white')
+                else:
+                    toPrint += '{0:^7}'.format(filled[i][j])
+                toPrint += colored('|', 'yellow')
 
                 if j % SystemState.NUM_COLS == SystemState.NUM_COLS - 1:
                     toPrint += '\n'
-                    toPrint += ' ' + '----' * 14 + '\n|'
-        toPrint = toPrint[:-1]
-
-        toPrint += ' '
-        for i in range(SystemState.NUM_COLS):
-            toPrint += '{0:^7} '.format(i+1)
-        if self._player == 0:
-            toPrint += '\nPlayer A: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._player])
-        else:
-            toPrint += '\nPlayer B: %d flips remaining' % (self.MAX_FLIPS - self._num_flips[self._player])
+                    toPrint += colored(' ' + '----' * 14 + '\n|', 'yellow')
+        toPrint = toPrint[:-6]
 
         return toPrint
 
