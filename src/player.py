@@ -1,11 +1,9 @@
 class Player:
     def __init__(self,name,turn=0):
         self._name = name
-        self._turn = turn
-        self._flips = 4
 
     def toTuple(self):
-        return (self._name, self._turn, self._flips)
+        return (self._name)
 
     def __eq__(self, other):
         return self.toTuple() == other.toTuple()
@@ -14,7 +12,11 @@ class Player:
         return self.toTuple().__hash__()
 
     def __repr__(self):
-        return self.toTuple().__str__()
+        return self.toTuple().__repr__()
 
-    def move():
+    def __str__(self):
+        return self._name
+
+    def move(self, state):
         pass
+

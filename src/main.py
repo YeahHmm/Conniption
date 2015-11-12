@@ -28,7 +28,7 @@ def main():
                 val = printState (cur_state, "input action (place [1-7]): ", True).strip().split(' ')
                 key = 'place'
                 pos = int(val[-1]) - 1
-            move = Move(key, cur_state._cur_player, pos)
+            move = Move(key, cur_state._player, pos)
             prevMv = move
             valid = cur_state.validMove(move)
             if valid:
