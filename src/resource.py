@@ -3,8 +3,22 @@ from itertools import repeat, product, combinations
 from termcolor import colored
 import os
 
+import const
 from graph import Graph
-from player import * 
+
+class Node:
+    def __init__(self, value, item):
+        self._value = value
+        self._item = item
+
+    def __eq__(self, nd):
+        return self._value == nd._value
+    
+    def __lt__(self, nd):
+        return self._value < nd._value
+
+    def __repr__(self):
+        return str((self._value, self._item))
 
 
 class Move:
@@ -29,33 +43,21 @@ class Move:
 
 
 class SystemState:
-    NUM_COLS = 7
-    NUM_ROWS = 6
-    LEN_SOL = 4
-
-    MAX_FLIPS = 4
-
-    SOLS_GRAPH = None
-    EMPTY_VAL = 2
-
     def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
-            player_pair=(Player(0), Player(1)), player=0, \
-            num_flips=(0, 0), is_down=0, cur_stage=0):
+            player=0, num_flips=(0, 0), is_down=0, stage=0):
         self._board = board
         self._prev_move = prev_move
-        self._player_pair = player_pair
         self._player = player
         self._num_flips = num_flips
         self._is_down = is_down
-        self._cur_stage = cur_stage
+        self._stage = stage
 
     def update(self, mv):
         new_board = deepcopy(self._board)
-        new_player_pair = deepcopy(self._player_pair)
         new_player = self._player
         new_flips = deepcopy(self._num_flips)
         new_down = self._is_down
-        new_stage = (self._cur_stage + 1) % 3
+        new_stage = (self._stage + 1) % 3
 
         if mv._action == 'flip':
             if self._prev_move._player == mv._player:
@@ -71,11 +73,13 @@ class SystemState:
             if self._prev_move._player == mv._player:
                 new_player = int(not new_player)
 
-        return SystemState(new_board, mv, new_player_pair, new_player, \
-                new_flips, new_down, new_stage)
+        return SystemState(new_board, mv, new_player, new_flips, new_down, new_stage)
 
     def validMove(self, mv):
         if self._player != mv._player:
+            return False
+
+        if mv._action == 'flip' and self._num_flips[mv._player] >= const.MAX_FLIPS:
             return False
 
         if mv._player == self._prev_move._player:
@@ -87,7 +91,7 @@ class SystemState:
             return mv._action != 'place'
         else:
             return mv._action == 'none'
-
+        
         return False
 
     def genMoves(self):
@@ -95,12 +99,14 @@ class SystemState:
 
         if self._player == self._prev_move._player:
             if self._prev_move._action == 'flip' or self._prev_move._action == 'none':
-                for i in range(SystemState.NUM_COLS):
-                    moves.add(Move('place', self._player, i))
+                for i in range(const.NUM_COLS):
+                    if len(self._board[i]) < const.NUM_ROWS:
+                        moves.add(Move('place', self._player, i))
                 return moves
 
         if self._prev_move._action != 'flip':
-            moves.add(Move('flip', self._player))
+            if self._num_flips[self._player] < const.MAX_FLIPS:
+                moves.add(Move('flip', self._player))
             moves.add(Move('none', self._player))
         else:
             moves.add(Move('none', self._player))
@@ -117,18 +123,15 @@ class SystemState:
 
         return (False, 2)
 
-    def getPlayer(self, i):
-        return self._player_pair[i]
-
-    def getCurPlayer(self):
-        return self.getPlayer(self._player)
-
+    # Rewrite to check for draws
     def _isGoal_flip(self):
-        slen = SystemState.LEN_SOL
-        sgraph = SystemState.SOLS_GRAPH
+        slen = const.LEN_SOL
+        sgraph = const.SOLS_GRAPH
         sdict = {s : True for s in sgraph.getVertices()}
         board = self.filledMatrix()
 
+        win_sols = set()
+        lose_sols = set()
         for sol in sdict:
             if not sdict[sol]:
                 continue
@@ -136,12 +139,14 @@ class SystemState:
             vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._player, sol))
             vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._player), sol)
             vals_lose = list(vals_lose)
-            vals_none = filter(lambda p: board[p[0]][p[1]] == SystemState.EMPTY_VAL, sol)
+            vals_none = filter(lambda p: board[p[0]][p[1]] == const.EMPTY_VAL, sol)
 
             if len(vals_win) == slen:
-                return (True, self._player)
+                win_sols.add(sol)
+                #return (True, self._player)
             elif len(vals_lose) == slen:
-                return (True, int(not self._player))
+                lose_sols.add(sol)
+                #return (True, int(not self._player))
 
             for cell in vals_none:
                 for s in sgraph.neighbors(sol, (cell,)):
@@ -151,7 +156,12 @@ class SystemState:
                 for s in sgraph.neighbors(sol, pair):
                     sdict[s] = False
 
-        return (False, 2)
+        if len(win_sols) > 0:
+            return (True, self._player)
+        elif len(lose_sols) > 0:
+            return (True, int(not self._player))
+        else:
+            return (False, 2)
 
 
     def _isGoal_place(self):
@@ -162,13 +172,13 @@ class SystemState:
         if matrix[col][row] != 2: #Avoid test in case of none or flip moves
             # Horizontal
             i = col - 3 if col > 3 else 0
-            while i <= col and i <= SystemState.NUM_COLS-4:
+            while i <= col and i <= const.NUM_COLS-4:
                 if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
                     return True, self._player
                 i += 1
             # Vertical
             j = row - 3 if row > 3 else 0
-            while j <= row and j <= SystemState.NUM_ROWS-4:
+            while j <= row and j <= const.NUM_ROWS-4:
                 if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
                     return True, self._player
                 j += 1
@@ -197,20 +207,20 @@ class SystemState:
 
     def isGoalFlipped(self):
         matrix = deepcopy(self.filledMatrix())
-        for j in range(SystemState.NUM_ROWS):
-            for i in range(SystemState.NUM_COLS):
+        for j in range(const.NUM_ROWS):
+            for i in range(const.NUM_COLS):
                 col = i
                 row = j
                 if matrix[col][row] != 2: #Avoid test in case of none or flip moves
                     # Horizontal
                     i = col - 3 if col > 3 else 0
-                    while i <= col and i <= SystemState.NUM_COLS-4:
+                    while i <= col and i <= const.NUM_COLS-4:
                         if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
                             return True, self._player
                         i += 1
                     # Vertical
                     j = row - 3 if (row%7) > 3 else 0
-                    while j <= row and j <= SystemState.NUM_ROWS-4:
+                    while j <= row and j <= const.NUM_ROWS-4:
                         if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
                             return True, self._player
                         j += 1
@@ -238,11 +248,11 @@ class SystemState:
 
 
     def filledMatrix(self):
-        e = SystemState.EMPTY_VAL
+        e = const.EMPTY_VAL
         if self._is_down:
-            filled = list(map(lambda c: c[::-1] + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+            filled = list(map(lambda c: c[::-1] + [e]*(const.NUM_ROWS - len(c)), self._board))
         else:
-            filled = list(map(lambda c: c + [e]*(SystemState.NUM_ROWS - len(c)), self._board))
+            filled = list(map(lambda c: c + [e]*(const.NUM_ROWS - len(c)), self._board))
         return filled
 
     def getBoardTuple(self):
@@ -250,8 +260,7 @@ class SystemState:
 
     def toTuple(self):
         boardTup = self.getBoardTuple()
-        return (boardTup, self._prev_move, self._player_pair, self._player, \
-                self._num_flips, self._is_down)
+        return (boardTup, self._prev_move, self._player, self._num_flips, self._is_down)
 
     def __eq__(self, state):
         return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
@@ -269,8 +278,8 @@ class SystemState:
         filled = list(map(lambda c: list(map(conv, c)), filled))
 
         toPrint = colored(' ' + '----' * 14 + '\n|', 'yellow')
-        for i in range(SystemState.NUM_ROWS):
-            for j in range(SystemState.NUM_COLS):
+        for i in range(const.NUM_ROWS):
+            for j in range(const.NUM_COLS):
                 if '{0:^7}'.format(filled[i][j]) == '   X   ':
                     toPrint += colored('{0:^7}'.format(filled[i][j]),'cyan', 'on_cyan')
                 elif '{0:^7}'.format(filled[i][j]) == '   O   ':
@@ -279,7 +288,7 @@ class SystemState:
                     toPrint += '{0:^7}'.format(filled[i][j])
                 toPrint += colored('|', 'yellow')
 
-                if j % SystemState.NUM_COLS == SystemState.NUM_COLS - 1:
+                if j % const.NUM_COLS == const.NUM_COLS - 1:
                     toPrint += '\n'
                     toPrint += colored(' ' + '----' * 14 + '\n|', 'yellow')
         toPrint = toPrint[:-6]
@@ -288,9 +297,9 @@ class SystemState:
 
     @staticmethod
     def _buildSols():
-        ncols = SystemState.NUM_COLS
-        nrows = SystemState.NUM_ROWS
-        slen = SystemState.LEN_SOL
+        ncols = const.NUM_COLS
+        nrows = const.NUM_ROWS
+        slen = const.LEN_SOL
 
         graph = Graph()
         chain_dict = {}
@@ -303,6 +312,9 @@ class SystemState:
             chain = tuple((x, j) for x in xlist)
             graph.addVertex(chain)
 
+            for p in chain:
+                const.SOL_DENSITY[p[0]][p[1]] += 1
+
         horiz_i = range(ncols)
         horiz_j = range(nrows - (slen - 1))
         horiz_start = product(horiz_i, horiz_j)
@@ -310,6 +322,9 @@ class SystemState:
             ylist = range(j, j + slen)
             chain = tuple((i, y) for y in ylist)
             graph.addVertex(chain)
+
+            for p in chain:
+                const.SOL_DENSITY[p[0]][p[1]] += 1
 
         ldiag_i = range(ncols - (slen - 1))
         ldiag_j = range(nrows - (slen - 1))
@@ -320,6 +335,9 @@ class SystemState:
             chain = tuple((x, y) for x, y in zip(xlist, ylist))
             graph.addVertex(chain)
 
+            for p in chain:
+                const.SOL_DENSITY[p[0]][p[1]] += 1
+
         rdiag_i = range(slen - 1, ncols)
         rdiag_j = range(nrows - (slen - 1))
         rdiag_start = product(rdiag_i, rdiag_j)
@@ -328,6 +346,9 @@ class SystemState:
             ylist = range(j, j + slen)
             chain = tuple((x, y) for x, y in zip(xlist, ylist))
             graph.addVertex(chain)
+
+            for p in chain:
+                const.SOL_DENSITY[p[0]][p[1]] += 1
 
         for chain in graph.getVertices():
             keys = set()
@@ -346,7 +367,7 @@ class SystemState:
                         continue
                     graph.addEdge(chain, c, k)
 
-        SystemState.SOLS_GRAPH = graph
+        const.SOLS_GRAPH = graph
 
 
 SystemState._buildSols()

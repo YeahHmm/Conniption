@@ -1,31 +1,43 @@
 import os
+import sys
 
 from termcolor import colored
 from getch import _Getch
 
-from resource import SystemState
+import const
 
-def printState(state, prompt='', inp=False):
+
+def printState(state, msg='', is_prompt=False):
     os.system('clear')
     toPrint = ' '
-    for i in range(SystemState.NUM_COLS):
+    for i in range(const.NUM_COLS):
         toPrint += '{0:^7} '.format(i+1)
     print(toPrint)
     print(state)
+
     print(colored('Player A: ', 'cyan') + colored('* * * *', 'green', attrs=['bold']))
     print(colored('Player B: ', 'white') + colored('* * * *', 'green', attrs=['bold']))
-    if prompt != '' and inp:
+    if msg != '' and is_prompt:
         #inKey = _Getch()
         #import sys
         #key = inKey()
         #print(key)
-        print('Press a key')
+        print(msg)
         inkey = _Getch()
         key = inkey()
-        if key not in map(str, range(1,8)):
+        if key is not '\x03':
             return key
         else:
-            return key
-        #return input(colored(prompt, 'yellow', attrs=['bold']))
-    elif prompt != '' and not inp:
-        return print(prompt)
+            raise KeyboardInterrupt
+        #return is_promptut(colored(msg, 'yellow', attrs=['bold']))
+    elif msg != '' and not is_prompt:
+        print(msg)
+
+def prompt(msg):
+    sys.stdout.write('\r' + msg)
+    inkey = _Getch()
+    key = inkey()
+    if key is not '\x03':
+        return key
+    else:
+        raise KeyboardInterrupt
