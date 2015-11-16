@@ -13,10 +13,7 @@ LEN_SOL = 4     # Length of winning chain
 WIN_VAL = 1     # Value for a game won
 DRAW_VAL = 2    # Value for a draw game
 
-SOLS_GRAPH = None   # Graph of adjacencies between solution positions
-# Grid recording number of solutions in each cell
-SOL_DENSITY = []
-for i in range(NUM_COLS):
-    SOL_DENSITY.append([0] * NUM_ROWS)
+SOLS_GRAPH = None   # Graph of cell adjacencies between solution positions
+CELL_MAP = {}       # Dictionary mapping cells to sets of solutions
 
 DEBUG = False

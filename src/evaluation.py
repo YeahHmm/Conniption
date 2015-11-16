@@ -45,7 +45,8 @@ def controlled_sols(state):
                 continue
             else:
                 vals.remove(2)
-        elif 0 in vals and 1 in vals:
+
+        if 0 in vals and 1 in vals:
             vals_max = list(filter(lambda p: board[p[0]][p[1]] == 0, sol))
             vals_min = list(filter(lambda p: board[p[0]][p[1]] == 1, sol))
 
@@ -60,23 +61,27 @@ def controlled_sols(state):
         zoneCounts[player][numPlaced-1] += 1
 
     #print("Weights:", zoneCounts)
-    weights = [1, 2, 3, 250]
+    weights = [1, 4, 8, 1024]
     zoneCounts[0] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[0], weights)))
     zoneCounts[1] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[1], weights)))
 
     return sum(zoneCounts[0]) - sum(zoneCounts[1])
 
 def controlled_cells(state):
-    density = const.SOL_DENSITY
     board = state.filledMatrix()
 
     vals = []
-    for i in range(len(density)):
-        for j in range(len(density[i])):
+    for i in range(len(board)):
+        for j in range(len(board[i])):
             pmod = 1 if board[i][j] == 0 else -1 if board[i][j] == 1 else 0
-            vals.append(pmod * const.SOL_DENSITY[i][j])
+            vals.append(pmod * len(const.CELL_MAP[(i, j)]))
 
     return sum(vals)
+
+def cell_sol_hybrid(state):
+    cell_val = controlled_cells(state)
+    sol_val = controlled_sols(state)
+    return cell_val + sol_val
 
 def random_move(state):
     return random.randint(0, 10)

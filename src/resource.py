@@ -117,7 +117,7 @@ class SystemState:
         if self._prev_move._action == 'flip':
             return self._isGoal_flip()
         elif self._prev_move._action == 'place':
-            return self._isGoal_place()
+            return self._new_isGoal_place()
         elif self._prev_move._action == 'none' and check_none:
             return self._isGoal_flip()
 
@@ -161,8 +161,19 @@ class SystemState:
         elif len(lose_sols) > 0:
             return (True, int(not self._player))
         else:
-            return (False, 2)
+            return (False, const.EMPTY_VAL)
 
+    def _new_isGoal_place(self):
+        matrix = self.filledMatrix()
+        col = self._prev_move._column
+        row = len(self._board[col])-1
+
+        for sol in const.CELL_MAP[(col, row)]:
+            ls = filter(lambda p: matrix[p[0]][p[1]] == self._player, sol)
+            if len(list(ls)) == const.LEN_SOL:
+                return (True, self._player)
+
+        return (False, const.EMPTY_VAL)
 
     def _isGoal_place(self):
         row = len(self._board[self._prev_move._column])-1
@@ -184,9 +195,10 @@ class SystemState:
                 j += 1
             # Diagonal Left to rigth down
             startCol = col - 3 if col > 3 else 0
-            startRow = row + 3 if col > 3 else row + col
-            while startCol <= col and startCol <= 3:
-                if startRow > 2 and startRow <6:
+            #startRow = row + 3 if col > 3 else row + col
+            startRow = row + col - startCol
+            while startCol <= col and startCol < 4:
+                if startRow > 2 and startRow < 6:
                     if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
                     ==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
                         return True, self._player
@@ -194,9 +206,10 @@ class SystemState:
                 startRow -= 1
             # Diagonal left to Right up
             startCol = col - 3 if col > 3 else 0
-            startRow = row - 3 if col > 3 else row - col
-            while startCol <= col and startCol <= 3:
-                if startRow >= 0 and startRow <4:
+            #startRow = row - 3 if col > 3 else row - col
+            startRow = row - 3 if col > 3 else row - col + startCol
+            while startCol <= col and startCol < 4:
+                if startRow >= 0 and startRow < 4:
                     if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
                     ==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
                         return True, self._player
@@ -301,7 +314,7 @@ class SystemState:
         nrows = const.NUM_ROWS
         slen = const.LEN_SOL
 
-        graph = Graph()
+        sols_graph = Graph()
         chain_dict = {}
 
         vert_i = range(ncols - (slen - 1))
@@ -310,10 +323,7 @@ class SystemState:
         for i, j in vert_start:
             xlist = range(i, i + slen)
             chain = tuple((x, j) for x in xlist)
-            graph.addVertex(chain)
-
-            for p in chain:
-                const.SOL_DENSITY[p[0]][p[1]] += 1
+            sols_graph.addVertex(chain)
 
         horiz_i = range(ncols)
         horiz_j = range(nrows - (slen - 1))
@@ -321,10 +331,7 @@ class SystemState:
         for i, j in horiz_start:
             ylist = range(j, j + slen)
             chain = tuple((i, y) for y in ylist)
-            graph.addVertex(chain)
-
-            for p in chain:
-                const.SOL_DENSITY[p[0]][p[1]] += 1
+            sols_graph.addVertex(chain)
 
         ldiag_i = range(ncols - (slen - 1))
         ldiag_j = range(nrows - (slen - 1))
@@ -333,10 +340,7 @@ class SystemState:
             xlist = range(i, i + slen)
             ylist = range(j, j + slen)
             chain = tuple((x, y) for x, y in zip(xlist, ylist))
-            graph.addVertex(chain)
-
-            for p in chain:
-                const.SOL_DENSITY[p[0]][p[1]] += 1
+            sols_graph.addVertex(chain)
 
         rdiag_i = range(slen - 1, ncols)
         rdiag_j = range(nrows - (slen - 1))
@@ -345,12 +349,9 @@ class SystemState:
             xlist = range(i, i - slen - 1, -1)
             ylist = range(j, j + slen)
             chain = tuple((x, y) for x, y in zip(xlist, ylist))
-            graph.addVertex(chain)
+            sols_graph.addVertex(chain)
 
-            for p in chain:
-                const.SOL_DENSITY[p[0]][p[1]] += 1
-
-        for chain in graph.getVertices():
+        for chain in sols_graph.getVertices():
             keys = set()
             for i in range(1, slen - 1):
                 keys.update(combinations(chain[1:], i))
@@ -365,9 +366,14 @@ class SystemState:
                 for c in chain_dict[k]:
                     if c is chain:
                         continue
-                    graph.addEdge(chain, c, k)
+                    sols_graph.addEdge(chain, c, k)
 
-        const.SOLS_GRAPH = graph
+                    for p in c:
+                        if p not in const.CELL_MAP:
+                            const.CELL_MAP[p] = set()
+                        const.CELL_MAP[p].add(c)
+
+        const.SOLS_GRAPH = sols_graph
 
 
 SystemState._buildSols()

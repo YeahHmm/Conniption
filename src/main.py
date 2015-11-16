@@ -5,6 +5,11 @@ from resource import SystemState, Move
 from game import Game, Human, AI
 from evaluation import *
 
+def place(game, player, col):
+    game.update(Move('none', player))
+    game.update(Move('place', player, col))
+    game.update(Move('none', player))
+
 def test():
     const.DEBUG = True
     ai1 = AI('ALEX', controlled_cells, 1, tieChoice=tieChoice_priority)
@@ -12,54 +17,41 @@ def test():
     player_pair = (ai1, ai2)
     game = Game(player_pair)
 
-    game.update(Move('none', 0))
-    game.update(Move('place', 0, 3))
-    game.update(Move('none', 0))
-
-    game.update(Move('flip', 1))
-    game.update(Move('place', 1, 4))
-    game.update(Move('flip', 1))
-
-    game.update(Move('none', 0))
-    game.update(Move('place', 0, 3))
-    game.update(Move('none', 0))
-
-    game.update(Move('flip', 1))
-    game.update(Move('place', 1, 4))
-    game.update(Move('flip', 1))
-
-    game.update(Move('none', 0))
-    game.update(Move('place', 0, 2))
-    game.update(Move('none', 0))
-
-    game.update(Move('none', 1))
-    game.update(Move('place', 1, 4))
-    game.update(Move('none', 1))
-
-    game.update(Move('none', 0))
+    place(game, 0, 3)
+    place(game, 1, 3)
+    place(game, 0, 3)
+    place(game, 1, 3)
+    place(game, 0, 2)
+    place(game, 1, 2)
+    place(game, 0, 2)
+    #place(game, 1, 1)
+    #print(cell_sol_hybrid(game.getState()))
+    place(game, 1, 2)
+    print(cell_sol_hybrid(game.getState()))
+    #place(game, 0, 1)
+    #print(cell_sol_hybrid(game.getState()))
+    #place(game, 1, 3)
+    #print(cell_sol_hybrid(game.getState()))
+    #place(game, 0, 1)
+    #print(cell_sol_hybrid(game.getState()))
 
     game.drawScreen()
-    print(controlled_sols(game.getState()))
-    print(controlled_sols(game.getState().update(Move('place', 0, 4))))
-    print(controlled_cells(game.getState()))
 
-    mv = ai2.choose_move(game.getState())
-    print(mv)
-
-    #game.update(mv)
-    #game.drawScreen()
 
 def main2():
     const.DEBUG = True
-    #human = Human('Alex')
-    ai1 = AI('ARMANDO1', controlled_sols, 4, tieChoice=tieChoice_priority)
-    #ai1 = AI('ALEX1', controlled_cells, 1, tieChoice=tieChoice_priority)
-    #ai1 = Human('ALEX')
-    #ai2 = AI('ARMANDO2', controlled_sols, 2, tieChoice=tieChoice_priority)
-    ai2 = AI('ALEX2', controlled_cells, 6, tieChoice=tieChoice_priority)
-    #ai2 = AI('RANDOM', random_move)
-    #player_pair = (human, ai)
-    player_pair = (ai1, ai2)
+    #p1 = Human('ALEX')
+    p1 = AI('CELLS1', controlled_cells, 3, tieChoice=tieChoice_priority)
+    #p1 = AI('SOLS1', controlled_sols, 5, tieChoice=tieChoice_priority)
+    #p1 = AI('RANDOM1', random_move)
+    #p1 = AI('HYBRID1', cell_sol_hybrid, 3, tieChoice=tieChoice_priority)
+
+    #p2 = Human('ALEX')
+    #p2 = AI('CELLS2', controlled_cells, 5, tieChoice=tieChoice_priority)
+    p2 = AI('SOLS2', controlled_sols, 3, tieChoice=tieChoice_priority)
+    #p2 = AI('RANDOM2', random_move)
+    #p2 = AI('HYBRID2', cell_sol_hybrid, 3, tieChoice=tieChoice_priority)
+    player_pair = (p1, p2)
     game = Game(player_pair)
 
     winType = game.checkWin()

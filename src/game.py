@@ -140,9 +140,15 @@ class AI(Player):
         children = []
         for mv in mv_list:
             new_state = base_state.update(mv)
-            mv_val = self._minimax_help(new_state, new_depth, new_choice, get_max)
-            if mv_val != None:
-                children.append(Node(mv_val, mv))
+            tup = new_state.getBoardTuple()
+            if tup in self._memory:
+                mv_val = self._memory[tup]
+            else:
+                mv_val = self._minimax_help(new_state, new_depth, \
+                        new_choice, get_max)
+                #self._memory[tup] = mv_val
+            
+            children.append(Node(mv_val, mv))
 
         if self.tieChoice is not None:
             return self.tieChoice(children, get_max)
@@ -151,18 +157,15 @@ class AI(Player):
 
     def _minimax_help(self, base_state, depth, get_max, init_choice,
             alpha=None, beta=None):
-        if base_state in self._memory:
-            return self._memory[base_state]
+        #if base_state in self._memory:
+        #    return self._memory[base_state]
 
         if depth > self._max_depth and base_state._stage == 0:
             val = self.evalFunc(base_state)
-            self._memory[base_state] = val
             return val
         
         if base_state.isGoal()[0]:
             val = self.evalFunc(base_state)
-            #print("GOAL:", val)
-            self._memory[base_state] = val
             return val
 
         # Data for next recursion
@@ -180,10 +183,8 @@ class AI(Player):
 
             if best == None:
                 best = val
-            elif val != None and choice_func(best, val) == val:
+            elif choice_func(best, val) == val:
                 best = val
-            elif val != None:
-                continue
 
             if get_max:
                 if alpha == None or (best != None and best > alpha):
@@ -195,7 +196,6 @@ class AI(Player):
             if alpha != None and beta != None and alpha > beta:
                 break
 
-        self._memory[base_state] = best
         return best
     
     @staticmethod
