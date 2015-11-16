@@ -1,26 +1,31 @@
 import heapq
+import random
 from itertools import product, starmap
 
 import const
 from resource import Node
 
 def tieChoice_priority(node_list, get_max=True):
-    node_list.sort(reverse=not get_max)
     print(node_list)
-
-    best = [node_list.pop()]
-    best_val = best[0]._value
+    node_list.sort(reverse=not get_max)
 
     weight = {'none': lambda mv: -1,
-            'place': lambda mv: const.NUM_COLS//2 - mv._column,
+            'place': lambda mv: random.randint(0, const.NUM_COLS),
             'flip':lambda mv: const.NUM_COLS
         }
+
+    first = node_list.pop()
+    best = [Node(weight[first._item._action](first._item), first)]
+    best_val = best[0]._item._value
+
     while len(node_list) > 0 and node_list[-1]._value == best_val:
         node = node_list.pop()
         mv = node._item
-        heapq.heappush(best, Node(weight[mv._action](mv), mv))
+        print(weight[mv._action](mv))
+        heapq.heappush(best, Node(weight[mv._action](mv), node))
 
-    return heapq.heappop(best)._item
+    print(best)
+    return heapq.heappop(best)._item._item
 
 def controlled_sols(state):
     board = state.filledMatrix()
@@ -72,3 +77,6 @@ def controlled_cells(state):
             vals.append(pmod * const.SOL_DENSITY[i][j])
 
     return sum(vals)
+
+def random_move(state):
+    return random.randint(0, 10)

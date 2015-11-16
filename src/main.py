@@ -3,7 +3,7 @@ import const
 from printing import printState
 from resource import SystemState, Move
 from game import Game, Human, AI
-from evaluation import controlled_sols, controlled_cells, tieChoice_priority
+from evaluation import *
 
 def test():
     const.DEBUG = True
@@ -16,35 +16,32 @@ def test():
     game.update(Move('place', 0, 3))
     game.update(Move('none', 0))
 
-    game.update(Move('none', 1))
+    game.update(Move('flip', 1))
     game.update(Move('place', 1, 4))
-    game.update(Move('none', 1))
-
-    game.update(Move('none', 0))
-    game.update(Move('place', 0, 1))
-    game.update(Move('none', 0))
-
-    game.update(Move('none', 1))
-    game.update(Move('place', 1, 6))
-    game.update(Move('none', 1))
+    game.update(Move('flip', 1))
 
     game.update(Move('none', 0))
     game.update(Move('place', 0, 3))
     game.update(Move('none', 0))
 
-    game.update(Move('none', 1))
-    game.update(Move('place', 1, 3))
-    game.update(Move('none', 1))
+    game.update(Move('flip', 1))
+    game.update(Move('place', 1, 4))
+    game.update(Move('flip', 1))
 
     game.update(Move('none', 0))
     game.update(Move('place', 0, 2))
     game.update(Move('none', 0))
 
+    game.update(Move('none', 1))
+    game.update(Move('place', 1, 4))
+    game.update(Move('none', 1))
+
+    game.update(Move('none', 0))
+
     game.drawScreen()
-    print()
     print(controlled_sols(game.getState()))
-    print(controlled_sols(game.getState().update(Move('flip', 0))))
-    #print(controlled_cells(game.getState()))
+    print(controlled_sols(game.getState().update(Move('place', 0, 4))))
+    print(controlled_cells(game.getState()))
 
     mv = ai2.choose_move(game.getState())
     print(mv)
@@ -55,9 +52,12 @@ def test():
 def main2():
     const.DEBUG = True
     #human = Human('Alex')
-    #ai1 = AI('ALEX', controlled_sols, 3, tieChoice=tieChoice_priority)
-    ai1 = Human('ALEX')
-    ai2 = AI('ARMANDO', controlled_sols, 1, tieChoice=tieChoice_priority)
+    ai1 = AI('ARMANDO1', controlled_sols, 4, tieChoice=tieChoice_priority)
+    #ai1 = AI('ALEX1', controlled_cells, 1, tieChoice=tieChoice_priority)
+    #ai1 = Human('ALEX')
+    #ai2 = AI('ARMANDO2', controlled_sols, 2, tieChoice=tieChoice_priority)
+    ai2 = AI('ALEX2', controlled_cells, 6, tieChoice=tieChoice_priority)
+    #ai2 = AI('RANDOM', random_move)
     #player_pair = (human, ai)
     player_pair = (ai1, ai2)
     game = Game(player_pair)
@@ -122,5 +122,5 @@ def main():
         printState (cur_state,'Draw!')
 
 if __name__ == "__main__":
-    test()
-    #main2()
+    #test()
+    main2()

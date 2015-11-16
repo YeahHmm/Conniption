@@ -263,10 +263,10 @@ class SystemState:
         return (boardTup, self._prev_move, self._player, self._num_flips, self._is_down)
 
     def __eq__(self, state):
-        return (self.getBoardTuple(), self._is_down) == (mv.getBoardTuple(), mv._is_down)
+        return self.getBoardTuple() == state.getBoardTuple()
 
     def __hash__(self):
-        return (self.getBoardTuple(), self._is_down).__hash__()
+        return self.getBoardTuple().__hash__()
 
     def __repr__(self):
         return self.toTuple().__repr__()

@@ -119,6 +119,7 @@ class AI(Player):
         self.evalFunc = evalFunc
         self.tieChoice = tieChoice
         self._max_depth = max_depth
+        self._memory = {}
         super().__init__(name)
 
     def choose_move(self, state):
@@ -140,7 +141,8 @@ class AI(Player):
         for mv in mv_list:
             new_state = base_state.update(mv)
             mv_val = self._minimax_help(new_state, new_depth, new_choice, get_max)
-            children.append(Node(mv_val, mv))
+            if mv_val != None:
+                children.append(Node(mv_val, mv))
 
         if self.tieChoice is not None:
             return self.tieChoice(children, get_max)
@@ -149,23 +151,24 @@ class AI(Player):
 
     def _minimax_help(self, base_state, depth, get_max, init_choice,
             alpha=None, beta=None):
-        if depth >= self._max_depth and base_state._stage == const.NUM_STAGES-1:
-            return self.evalFunc(base_state)
+        if base_state in self._memory:
+            return self._memory[base_state]
+
+        if depth > self._max_depth and base_state._stage == 0:
+            val = self.evalFunc(base_state)
+            self._memory[base_state] = val
+            return val
         
         if base_state.isGoal()[0]:
             val = self.evalFunc(base_state)
-            print("GOAL:", val)
+            #print("GOAL:", val)
+            self._memory[base_state] = val
             return val
 
         # Data for next recursion
         cmod = base_state._stage == const.NUM_STAGES - 1
         new_choice = cmod ^ get_max
         new_depth = depth + (new_choice != init_choice)
-
-        # Data for Alpha-Beta Pruning
-        cmod_prev = base_state._stage == 0
-        prev_choice = cmod_prev ^ get_max
-        prev_choice_func = max if prev_choice else min
 
         choice_func = max if get_max else min
         mv_list = base_state.genMoves()
@@ -177,21 +180,22 @@ class AI(Player):
 
             if best == None:
                 best = val
-            elif choice_func(best, val) == val:
+            elif val != None and choice_func(best, val) == val:
                 best = val
-            else:
+            elif val != None:
                 continue
 
             if get_max:
-                if alpha == None or best > alpha:
+                if alpha == None or (best != None and best > alpha):
                     alpha = best
             elif not get_max:
-                if beta == None or best < beta:
+                if beta == None or (best != None and best < beta):
                     beta = best
 
             if alpha != None and beta != None and alpha > beta:
                 break
 
+        self._memory[base_state] = best
         return best
     
     @staticmethod
@@ -199,7 +203,7 @@ class AI(Player):
         node_list.sort(reverse=not get_max)
         best = []
         best_val = node_list[0]._value
-        while len(node_list) > 0 and node_list[-1]._value == best_val:
+        while len(node_list) > 0 and node_list[0]._value == best_val:
             best.append(node_list.pop())
 
         return random.choice(best)._item
