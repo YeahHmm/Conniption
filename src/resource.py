@@ -30,7 +30,7 @@ class Move:
         self._column = column
 
     def toTuple(self):
-        return (self._player, self._action, self._column)
+        return (self._action, self._player, self._column)
 
     def __eq__(self, mv):
         return self.toTuple() == mv.toTuple()
@@ -44,13 +44,14 @@ class Move:
 
 class SystemState:
     def __init__(self, board=list(repeat([], 7)), prev_move=Move(), \
-            player=0, num_flips=(0, 0), is_down=0, stage=0):
+            player=0, num_flips=(0, 0), is_down=0, stage=0, num_placed=0):
         self._board = board
         self._prev_move = prev_move
         self._player = player
         self._num_flips = num_flips
         self._is_down = is_down
         self._stage = stage
+        self._num_placed = 0
 
     def update(self, mv):
         new_board = deepcopy(self._board)
@@ -58,6 +59,7 @@ class SystemState:
         new_flips = deepcopy(self._num_flips)
         new_down = self._is_down
         new_stage = (self._stage + 1) % 3
+        new_placed = self._num_placed
 
         if mv._action == 'flip':
             if self._prev_move._player == mv._player:
@@ -65,6 +67,7 @@ class SystemState:
             new_flips = tuple(map(lambda i: new_flips[i] + (i == self._player), range(2)))
             new_down = int(not new_down)
         elif mv._action == 'place':
+            new_placed += 1
             if self._is_down:
                 new_board[mv._column] = [self._player] + new_board[mv._column]
             else:
@@ -73,7 +76,8 @@ class SystemState:
             if self._prev_move._player == mv._player:
                 new_player = int(not new_player)
 
-        return SystemState(new_board, mv, new_player, new_flips, new_down, new_stage)
+        return SystemState(new_board, mv, new_player, new_flips, new_down, \
+                new_stage, new_placed)
 
     def validMove(self, mv):
         if self._player != mv._player:
@@ -121,7 +125,7 @@ class SystemState:
         elif self._prev_move._action == 'none' and check_none:
             return self._isGoal_flip()
 
-        return (False, 2)
+        return (False, const.EMPTY_VAL)
 
     # Rewrite to check for draws
     def _isGoal_flip(self):
@@ -129,6 +133,7 @@ class SystemState:
         sgraph = const.SOLS_GRAPH
         sdict = {s : True for s in sgraph.getVertices()}
         board = self.filledMatrix()
+        player = self._prev_move._player
 
         win_sols = set()
         lose_sols = set()
@@ -136,8 +141,8 @@ class SystemState:
             if not sdict[sol]:
                 continue
 
-            vals_win = list(filter(lambda p: board[p[0]][p[1]] == self._player, sol))
-            vals_lose = filter(lambda p: board[p[0]][p[1]] == (not self._player), sol)
+            vals_win = list(filter(lambda p: board[p[0]][p[1]] == player, sol))
+            vals_lose = filter(lambda p: board[p[0]][p[1]] == (player), sol)
             vals_lose = list(vals_lose)
             vals_none = filter(lambda p: board[p[0]][p[1]] == const.EMPTY_VAL, sol)
 
@@ -157,9 +162,12 @@ class SystemState:
                     sdict[s] = False
 
         if len(win_sols) > 0:
-            return (True, self._player)
+            return (True, player)
         elif len(lose_sols) > 0:
-            return (True, int(not self._player))
+            return (True, int(not player))
+        elif self._num_placed == const.NUM_COLS * const.NUM_ROWS and \
+                self._stage == const.NUM_STAGES-1:
+            return (True, const.EMPTY_VAL)
         else:
             return (False, const.EMPTY_VAL)
 
@@ -172,6 +180,10 @@ class SystemState:
             ls = filter(lambda p: matrix[p[0]][p[1]] == self._player, sol)
             if len(list(ls)) == const.LEN_SOL:
                 return (True, self._player)
+
+        if self._num_placed == const.NUM_COLS * const.NUM_ROWS and \
+                self._stage == const.NUM_STAGES-1:
+            return (True, const.EMPTY_VAL)
 
         return (False, const.EMPTY_VAL)
 

@@ -6,7 +6,6 @@ import const
 from resource import Node
 
 def tieChoice_priority(node_list, get_max=True):
-    print(node_list)
     node_list.sort(reverse=not get_max)
 
     weight = {'none': lambda mv: -1,
@@ -24,7 +23,6 @@ def tieChoice_priority(node_list, get_max=True):
         print(weight[mv._action](mv))
         heapq.heappush(best, Node(weight[mv._action](mv), node))
 
-    print(best)
     return heapq.heappop(best)._item._item
 
 def controlled_sols(state):
@@ -60,7 +58,6 @@ def controlled_sols(state):
         numPlaced = len(list(filter(lambda p: board[p[0]][p[1]] != 2, sol)))
         zoneCounts[player][numPlaced-1] += 1
 
-    #print("Weights:", zoneCounts)
     weights = [1, 4, 8, 1024]
     zoneCounts[0] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[0], weights)))
     zoneCounts[1] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[1], weights)))

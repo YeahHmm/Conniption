@@ -16,7 +16,9 @@ class Game:
     def __init__(self, player_pair):
         self._state = SystemState()
         self._player_pair = player_pair
-        self._winner = ''
+        self._history = []
+        self._winner = None
+        self._gameEnd = False
 
     def getState(self):
         return self._state
@@ -26,16 +28,24 @@ class Game:
 
     def update(self, mv):
         self._state = self._state.update(mv)
+        self._history.append(mv)
 
     def checkWin(self):
-        winType, winner = self._state.isGoal()
-        if winType == const.DRAW_VAL:
-            self._winner = 'DRAW'
-        elif winType == const.WIN_VAL:
+        self._gameEnd, winner = self._state.isGoal()
+        if self._gameEnd and winner != const.EMPTY_VAL:
             self._winner = self._player_pair[winner]
         
-        return winType
+        return self._gameEnd
     
+    def log(self, fname):
+        f = open(fname, 'a')
+
+        pval = 2 if self._winner is None else self._player_pair.index(self._winner)
+        f.write(str((self._gameEnd, self._winner)) + "\n")
+        for mv in self._history:
+            f.write(str(mv) + ",")
+        f.write("\n")
+
     def drawScreen(self, msg=''):
         if not const.DEBUG:
             os.system('clear')
@@ -119,7 +129,6 @@ class AI(Player):
         self.evalFunc = evalFunc
         self.tieChoice = tieChoice
         self._max_depth = max_depth
-        self._memory = {}
         super().__init__(name)
 
     def choose_move(self, state):
@@ -141,12 +150,8 @@ class AI(Player):
         for mv in mv_list:
             new_state = base_state.update(mv)
             tup = new_state.getBoardTuple()
-            if tup in self._memory:
-                mv_val = self._memory[tup]
-            else:
-                mv_val = self._minimax_help(new_state, new_depth, \
-                        new_choice, get_max)
-                #self._memory[tup] = mv_val
+            mv_val = self._minimax_help(new_state, new_depth, \
+                    new_choice, get_max)
             
             children.append(Node(mv_val, mv))
 
@@ -157,9 +162,6 @@ class AI(Player):
 
     def _minimax_help(self, base_state, depth, get_max, init_choice,
             alpha=None, beta=None):
-        #if base_state in self._memory:
-        #    return self._memory[base_state]
-
         if depth > self._max_depth and base_state._stage == 0:
             val = self.evalFunc(base_state)
             return val
