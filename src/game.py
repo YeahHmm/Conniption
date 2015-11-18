@@ -45,6 +45,7 @@ class Game:
         for mv in self._history:
             f.write(str(mv) + ",")
         f.write("\n")
+        f.close()
 
     def drawScreen(self, msg=''):
         if not const.DEBUG:
