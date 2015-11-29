@@ -31,22 +31,29 @@ def test():
 
 def promptPlayers():
     ptype = [None, None]
-    ptype[0] = input("Enter Player 1 type: ").upper()
-    ptype[1] = input("Enter Player 2 type: ").upper()
+
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
+    ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+    ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+    for i in range(len(ptype)):
+        if ptype[i].isnumeric():
+            ptype[i] = name_mapping[int(ptype[i])-1]
+        else:
+            ptype[i] = ptype[i].upper()
 
     pname = [ptype[0]+'1', ptype[1]+'2']
     pclass = [AI, AI]
     pfunc = [None, None]
     for i in range(2):
-        if ptype[i] == "RANDOM":
+        if ptype[i] == "RANDOM" or ptype[i] == "5":
             pfunc[i] = random_move
-        elif ptype[i] == "CELLS":
+        elif ptype[i] == "CELLS" or ptype[i] == "3":
             pfunc[i] = controlled_cells
-        elif ptype[i] == "SOLS":
+        elif ptype[i] == "SOLS" or ptype[i] == "2":
             pfunc[i] = controlled_sols
-        elif ptype[i] == "HYBRID":
+        elif ptype[i] == "HYBRID" or ptype[i] == "4":
             pfunc[i] = cell_sol_hybrid
-        elif ptype[i] == "HUMAN":
+        elif ptype[i] == "HUMAN" or ptype[i] == "1":
             pclass[i] = Human
             pname[i] = input("Enter Player %d name: " % (i+1))
 
@@ -96,7 +103,7 @@ def main():
     for i in range(num_games):
         game = Game(player_pair)
         stats['game'] = game
-        
+
         while not game._gameEnd:
             game.drawScreen()
             mv = game.getCurPlayer().choose_move(game.getState())
