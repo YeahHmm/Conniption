@@ -80,6 +80,7 @@ def promptPlayers(in_pair=None):
 
     return (p1, p2)
 
+
 def promptContinue(stats):
     p1 = stats['game']._player_pair[0]
     p2 = stats['game']._player_pair[1]
