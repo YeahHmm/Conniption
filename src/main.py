@@ -29,28 +29,7 @@ def test():
         game.drawScreen()
         print(game.checkWin())
 
-def promptContinue(stats):
-    p1 = stats['game']._player_pair[0]
-    p2 = stats['game']._player_pair[1]
-    results = stats['results']
-    msg = str(p1) + ': ' + '/'.join(map(str, results))
-    msg += '\n'
-    msg += str(p2) + ': ' + '/'.join(map(str, (results[1], results[0], results[2])))
-    msg += '\n'
-    msg += "Play again [y/N]?"
-
-    response = None
-    while response == None:
-        stats['game'].drawScreen()
-        key = prompt(msg).lower()
-        response = True if key == 'y' else False if key =='n' else None
-
-    return response
-
-def main():
-    const.DEBUG = False
-    const.MAX_FLIPS = 4
-
+def promptPlayers():
     ptype = [None, None]
     ptype[0] = input("Enter Player 1 type: ").upper()
     ptype[1] = input("Enter Player 2 type: ").upper()
@@ -74,20 +53,47 @@ def main():
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     else:
-        p1 = pclass[0](pname[0], pfunc[0], 3, tieChoice=tieChoice_priority)
+        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     else:
-        p2 = pclass[1](pname[1], pfunc[1], 3, tieChoice=tieChoice_priority)
+        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
-    player_pair = (p1, p2)
+    return (p1, p2)
+
+def promptContinue(stats):
+    p1 = stats['game']._player_pair[0]
+    p2 = stats['game']._player_pair[1]
+    results = stats['results']
+    msg = str(p1) + ': ' + '/'.join(map(str, results))
+    msg += '\n'
+    msg += str(p2) + ': ' + '/'.join(map(str, (results[1], results[0], results[2])))
+    msg += '\n'
+    msg += "Play again [y/N]?"
+
+    response = None
+    while response == None:
+        stats['game'].drawScreen()
+        key = prompt(msg).lower()
+        response = True if key == 'y' else False if key =='n' else None
+
+    return response
+
+def main():
+    const.DEBUG = False
+    const.MAX_FLIPS = 4
+    const.NUM_LOOK = 3
+
+    num_games = 5
+
+    player_pair = promptPlayers()
     play_again = True
 
     stats = {}
     stats['results'] = [0, 0, 0]
 
-    while play_again:
+    for i in range(num_games):
         game = Game(player_pair)
         stats['game'] = game
         
@@ -97,7 +103,6 @@ def main():
 
             game.update(mv)
             game.checkWin()
-            game.log('tst.log')
 
         game.log("test.txt")
         if game._winner is None:
@@ -108,7 +113,7 @@ def main():
             stats['results'][game._player_pair.index(game._winner)] += 1
         game.drawScreen(msg)
 
-        play_again = promptContinue(stats)
+        #play_again = promptContinue(stats)
 
 
 if __name__ == "__main__":

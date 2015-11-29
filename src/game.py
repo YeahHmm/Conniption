@@ -38,13 +38,15 @@ class Game:
         return self._gameEnd
     
     def log(self, fname):
+        pair = self._player_pair
         f = open(fname, 'a')
 
-        pval = 2 if self._winner is None else self._player_pair.index(self._winner)
-        f.write(str((self._gameEnd, self._winner)) + "\n")
-        for mv in self._history:
-            f.write(str(mv) + ",")
-        f.write("\n")
+        line = ''
+        line += str((pair[0]._name, pair[1]._name))
+        line += ',' + str((self._gameEnd, self._winner._name))
+        line += ',' + str(self._history)
+
+        f.write(line + "\n")
         f.close()
 
     def drawScreen(self, msg=''):
