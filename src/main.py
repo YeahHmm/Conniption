@@ -85,39 +85,6 @@ def promptPlayers():
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
     return (p1, p2)
-=======
-    ptype = [None, None]
-    ptype[0] = input("Enter Player 1 type: ").upper()
-    ptype[1] = input("Enter Player 2 type: ").upper()
-
-    pname = [ptype[0]+'1', ptype[1]+'2']
-    pclass = [AI, AI]
-    pfunc = [None, None]
-    for i in range(2):
-        if ptype[i] == "RANDOM":
-            pfunc[i] = random_move
-        elif ptype[i] == "CELLS":
-            pfunc[i] = controlled_cells
-        elif ptype[i] == "SOLS":
-            pfunc[i] = controlled_sols
-        elif ptype[i] == "HYBRID":
-            pfunc[i] = cell_sol_hybrid
-        elif ptype[i] == "HUMAN":
-            pclass[i] = Human
-            pname[i] = input("Enter Player %d name: " % (i+1))
-
-    if pclass[0] == Human:
-        p1 = pclass[0](pname[0])
-    else:
-        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority)
-
-    if pclass[1] == Human:
-        p2 = pclass[1](pname[1])
-    else:
-        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
-
-    return (p1, p2)
->>>>>>> c3dbfc0ce5227a08dc8858732483a1612220d4f5
 
 def promptContinue(stats):
     p1 = stats['game']._player_pair[0]
@@ -170,21 +137,7 @@ def main():
             stats['results'][game._player_pair.index(game._winner)] += 1
         game.drawScreen(msg)
 
-<<<<<<< HEAD
-    for i in range(num_games):
-        game = Game(player_pair)
-        stats['game'] = game
-
-        while not game._gameEnd:
-            game.drawScreen()
-            mv = game.getCurPlayer().choose_move(game.getState())
-=======
         #play_again = promptContinue(stats)
->>>>>>> c3dbfc0ce5227a08dc8858732483a1612220d4f5
-
-
-
-
 
 if __name__ == "__main__":
     #test()
