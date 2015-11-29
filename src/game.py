@@ -1,6 +1,7 @@
 from collections import deque
 import heapq
 import os
+import pickle
 import random
 import sys
 
@@ -36,6 +37,23 @@ class Game:
             self._winner = self._player_pair[winner]
 
         return self._gameEnd
+
+    def save(self, fname):
+        pair = self._player_pair
+        if os.path.isfile(fname):
+            data = pickle.load(open(fname, 'rn'))
+        else:
+            data = []
+
+        players = (pair[0]._name, pair[1]._name)
+        win_state = (self._gameEnd, self._winner._name)
+        mv_list = tuple(self._history)
+
+        game = (players, win_state, mv_list)
+        data.append(game)
+
+        f = open(fname, 'wb')
+        pickle.dump(data, f)
 
     def log(self, fname):
         pair = self._player_pair
