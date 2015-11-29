@@ -34,9 +34,9 @@ class Game:
         self._gameEnd, winner = self._state.isGoal()
         if self._gameEnd and winner != const.EMPTY_VAL:
             self._winner = self._player_pair[winner]
-        
+
         return self._gameEnd
-    
+
     def log(self, fname):
         pair = self._player_pair
         f = open(fname, 'a')
@@ -67,7 +67,7 @@ class Game:
         space2 = ' ' * (20 - len(str(p2)) - len(flip2))
 
         print(colored(str(p1), 'cyan') + space1 + colored(flip1, 'green', attrs=['bold']))
-        print(colored(str(p2), 'cyan') + space2 + colored(flip2, 'green', attrs=['bold']))
+        print(colored(str(p2), 'white') + space2 + colored(flip2, 'green', attrs=['bold']))
 
         print()
 
@@ -143,7 +143,7 @@ class AI(Player):
 
     def _minimax(self, base_state, get_max):
         mv_list = base_state.genMoves()
-        
+
         # Data for next recursion
         cmod = base_state._stage == const.NUM_STAGES - 1
         new_choice = cmod ^ get_max
@@ -155,7 +155,7 @@ class AI(Player):
             tup = new_state.getBoardTuple()
             mv_val = self._minimax_help(new_state, new_depth, \
                     new_choice, get_max)
-            
+
             children.append(Node(mv_val, mv))
 
         if self.tieChoice is not None:
@@ -168,7 +168,7 @@ class AI(Player):
         if depth > self._max_depth and base_state._stage == 0:
             val = self.evalFunc(base_state)
             return val
-        
+
         if base_state.isGoal()[0]:
             val = self.evalFunc(base_state)
             return val
@@ -202,7 +202,7 @@ class AI(Player):
                 break
 
         return best
-    
+
     @staticmethod
     def tieChoice_random(node_list, get_max=True):
         node_list.sort(reverse=not get_max)
