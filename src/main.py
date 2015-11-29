@@ -33,11 +33,15 @@ def test():
         game.drawScreen()
         print(game.checkWin())
 
-def promptPlayers():
+def promptPlayers(in_pair=None):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
-    ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
-    ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+    if in_pair != None:
+        ptype = in_pair
+    else:
+        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+
     for i in range(len(ptype)):
         if ptype[i].isnumeric():
             ptype[i] = name_mapping[int(ptype[i])-1]
@@ -95,18 +99,20 @@ def promptContinue(stats):
     return response
 
 def main():
-    if len(sys.argv) == 2:
-        save_file = sys.argv[1]
+    if len(sys.argv) == 4:
+        pair = (sys.argv[1], sys.argv[2])
+        save_file = sys.argv[3]
     else:
+        pair = None
         save_file = "save.pkl"
 
     const.DEBUG = True
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    num_games = 5
+    num_games = 100
 
-    player_pair = promptPlayers()
+    player_pair = promptPlayers(pair)
     play_again = True
 
     stats = {}
