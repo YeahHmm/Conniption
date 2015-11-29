@@ -41,11 +41,11 @@ class Game:
     def save(self, fname):
         pair = self._player_pair
         if os.path.isfile(fname):
-            data = pickle.load(open(fname, 'rn'))
+            data = pickle.load(open(fname, 'rb'))
         else:
             data = []
 
-        players = (pair[0]._name, pair[1]._name)
+        players = tuple(map(lambda p: p._name if p is not None else p, pair))
         win_state = (self._gameEnd, self._winner._name)
         mv_list = tuple(self._history)
 
@@ -54,6 +54,7 @@ class Game:
 
         f = open(fname, 'wb')
         pickle.dump(data, f)
+        f.close()
 
     def log(self, fname):
         pair = self._player_pair

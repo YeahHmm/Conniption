@@ -1,6 +1,6 @@
 import const
 import csv
-#import sys
+import sys
 #sys.setrecursionlimit(10000)
 
 from evaluation import *
@@ -33,35 +33,6 @@ def test():
         game.drawScreen()
         print(game.checkWin())
 
-def buildStats(fname):
-    stats = {
-        'HYBRID1': [],
-        'CELLS1': [],
-        'SOLS1': [],
-        'RANDOM1': []
-    }
-
-    split_moves = lambda s: s.strip('()').split(', ')
-    mave_moves = lambda t: Move(t[0].strip("'"), int(t[1]), int(t[2]))
-
-    log = open(fname)
-    lines = [l.strip() for l in log]
-    data = map(lambda l: l.split('),('), lines)
-    data = map(lambda l: [l[0]] + l[1].split('),['), data)
-    print(list(data)[0])
-
-
-def printStatsToFile():
-    with open("results.csv", 'w') as csvf:
-        write = csv.writer(csvf)
-        write.writerow(['Evaluation', 'Hy-wins','Hy-Draws', 'Hy-totalGames', 'Hy-AvgMoves',\
-                        'Cells-wins','Cells-Draws', 'Cells-totalGames', 'Cells-AvgMoves', \
-                        'Solution-wins','Solution-Draws', 'Solution-totalGames', 'Solution-AvgMoves'])
-        for x in range(4):
-
-            write.writerow(['1', '2', '3', '4'])
-
-
 def promptPlayers():
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
@@ -91,11 +62,15 @@ def promptPlayers():
 
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
+    elif pfunc[0] == random_move:
+        p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
+    elif pfunc[1] == random_move:
+        p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
@@ -120,7 +95,12 @@ def promptContinue(stats):
     return response
 
 def main():
-    const.DEBUG = False
+    if len(sys.argv) == 2:
+        save_file = sys.argv[1]
+    else:
+        save_file = "save.pkl"
+
+    const.DEBUG = True
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
@@ -143,7 +123,7 @@ def main():
             game.update(mv)
             game.checkWin()
 
-        game.save("save.txt")
+        game.save(save_file)
         if game._winner is None:
             msg = "The game was a draw!"
             stats['results'][2] += 1
@@ -156,5 +136,4 @@ def main():
 
 if __name__ == "__main__":
     #test()
-    printStatsToFile()
     main()
