@@ -47,23 +47,31 @@ def printStatsToFile():
 
 
 def promptPlayers():
+
     ptype = [None, None]
-    ptype[0] = input("Enter Player 1 type: ").upper()
-    ptype[1] = input("Enter Player 2 type: ").upper()
+
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
+    ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+    ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+    for i in range(len(ptype)):
+        if ptype[i].isnumeric():
+            ptype[i] = name_mapping[int(ptype[i])-1]
+        else:
+            ptype[i] = ptype[i].upper()
 
     pname = [ptype[0]+'1', ptype[1]+'2']
     pclass = [AI, AI]
     pfunc = [None, None]
     for i in range(2):
-        if ptype[i] == "RANDOM":
+        if ptype[i] == "RANDOM" or ptype[i] == "5":
             pfunc[i] = random_move
-        elif ptype[i] == "CELLS":
+        elif ptype[i] == "CELLS" or ptype[i] == "3":
             pfunc[i] = controlled_cells
-        elif ptype[i] == "SOLS":
+        elif ptype[i] == "SOLS" or ptype[i] == "2":
             pfunc[i] = controlled_sols
-        elif ptype[i] == "HYBRID":
+        elif ptype[i] == "HYBRID" or ptype[i] == "4":
             pfunc[i] = cell_sol_hybrid
-        elif ptype[i] == "HUMAN":
+        elif ptype[i] == "HUMAN" or ptype[i] == "1":
             pclass[i] = Human
             pname[i] = input("Enter Player %d name: " % (i+1))
 
@@ -78,6 +86,7 @@ def promptPlayers():
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
     return (p1, p2)
+
 
 def promptContinue(stats):
     p1 = stats['game']._player_pair[0]
@@ -131,10 +140,6 @@ def main():
         game.drawScreen(msg)
 
         #play_again = promptContinue(stats)
-
-
-
-
 
 if __name__ == "__main__":
     #test()
