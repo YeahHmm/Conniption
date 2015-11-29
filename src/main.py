@@ -12,18 +12,22 @@ def place(game, player, col):
 
 def test():
     const.DEBUG = True
-    ai1 = AI('HYBRID1', cell_sol_hybrid, 3, tieChoice=tieChoice_priority)
-    ai2 = Human('ALEX')
+    ai1 = Human('P1')
+    ai2 = Human('P2')
     player_pair = (ai1, ai2)
     game = Game(player_pair)
 
-    f = open('tst.log')
-    lf = [l.strip() for l in lf]
+    f = open('fail.txt')
+    lf = [l.strip() for l in f]
     last = lf[-1]
-    seq = last.split(',')
-
+    seq = map(lambda s: s.strip('()').split(', '), last.split('),('))
+    mv_list = list(map(lambda t: Move(t[0].strip("'"), int(t[1]), int(t[2])), seq))
 
     game.drawScreen()
+    for mv in mv_list:
+        game.update(mv)
+        game.drawScreen()
+        print(game.checkWin())
 
 def promptContinue(stats):
     p1 = stats['game']._player_pair[0]
@@ -77,17 +81,6 @@ def main():
     else:
         p2 = pclass[1](pname[1], pfunc[1], 3, tieChoice=tieChoice_priority)
 
-    #p1 = Human('ALEX')
-    #p1 = AI('CELLS1', controlled_cells, 3, tieChoice=tieChoice_priority)
-    #p1 = AI('SOLS1', controlled_sols, 3, tieChoice=tieChoice_priority)
-    #p1 = AI('RANDOM1', random_move)
-    #p1 = AI('HYBRID1', cell_sol_hybrid, 3, tieChoice=tieChoice_priority)
-
-    #p2 = Human('ALEX')
-    #p2 = AI('CELLS2', controlled_cells, 3, tieChoice=tieChoice_priority)
-    #p2 = AI('SOLS2', controlled_sols, 3, tieChoice=tieChoice_priority)
-    #p2 = AI('RANDOM2', random_move)
-    #p2 = AI('HYBRID2', cell_sol_hybrid, 3, tieChoice=tieChoice_priority)
     player_pair = (p1, p2)
     play_again = True
 

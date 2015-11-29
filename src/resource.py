@@ -142,7 +142,7 @@ class SystemState:
                 continue
 
             vals_win = list(filter(lambda p: board[p[0]][p[1]] == player, sol))
-            vals_lose = filter(lambda p: board[p[0]][p[1]] == (player), sol)
+            vals_lose = filter(lambda p: board[p[0]][p[1]] == int(not player), sol)
             vals_lose = list(vals_lose)
             vals_none = filter(lambda p: board[p[0]][p[1]] == const.EMPTY_VAL, sol)
 
