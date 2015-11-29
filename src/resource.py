@@ -121,7 +121,7 @@ class SystemState:
         if self._prev_move._action == 'flip':
             return self._isGoal_flip()
         elif self._prev_move._action == 'place':
-            return self._new_isGoal_place()
+            return self._isGoal_place()
         elif self._prev_move._action == 'none' and check_none:
             return self._isGoal_flip()
 
@@ -148,10 +148,8 @@ class SystemState:
 
             if len(vals_win) == slen:
                 win_sols.add(sol)
-                #return (True, self._player)
             elif len(vals_lose) == slen:
                 lose_sols.add(sol)
-                #return (True, int(not self._player))
 
             for cell in vals_none:
                 for s in sgraph.neighbors(sol, (cell,)):
@@ -171,7 +169,7 @@ class SystemState:
         else:
             return (False, const.EMPTY_VAL)
 
-    def _new_isGoal_place(self):
+    def _isGoal_place(self):
         matrix = self.filledMatrix()
         col = self._prev_move._column
         row = len(self._board[col])-1
@@ -186,91 +184,6 @@ class SystemState:
             return (True, const.EMPTY_VAL)
 
         return (False, const.EMPTY_VAL)
-
-    def _isGoal_place(self):
-        row = len(self._board[self._prev_move._column])-1
-        matrix = deepcopy(self.filledMatrix())
-        col = copy(self._prev_move._column)
-
-        if matrix[col][row] != 2: #Avoid test in case of none or flip moves
-            # Horizontal
-            i = col - 3 if col > 3 else 0
-            while i <= col and i <= const.NUM_COLS-4:
-                if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-                    return True, self._player
-                i += 1
-            # Vertical
-            j = row - 3 if row > 3 else 0
-            while j <= row and j <= const.NUM_ROWS-4:
-                if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-                    return True, self._player
-                j += 1
-            # Diagonal Left to rigth down
-            startCol = col - 3 if col > 3 else 0
-            #startRow = row + 3 if col > 3 else row + col
-            startRow = row + col - startCol
-            while startCol <= col and startCol < 4:
-                if startRow > 2 and startRow < 6:
-                    if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
-                    ==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
-                        return True, self._player
-                startCol += 1
-                startRow -= 1
-            # Diagonal left to Right up
-            startCol = col - 3 if col > 3 else 0
-            #startRow = row - 3 if col > 3 else row - col
-            startRow = row - 3 if col > 3 else row - col + startCol
-            while startCol <= col and startCol < 4:
-                if startRow >= 0 and startRow < 4:
-                    if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
-                    ==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
-                        return True, self._player
-                startCol += 1
-                startRow += 1
-
-        return False, 2
-
-    def isGoalFlipped(self):
-        matrix = deepcopy(self.filledMatrix())
-        for j in range(const.NUM_ROWS):
-            for i in range(const.NUM_COLS):
-                col = i
-                row = j
-                if matrix[col][row] != 2: #Avoid test in case of none or flip moves
-                    # Horizontal
-                    i = col - 3 if col > 3 else 0
-                    while i <= col and i <= const.NUM_COLS-4:
-                        if matrix[i][row]==matrix[i+1][row]==matrix[i+2][row]==matrix[i+3][row]:
-                            return True, self._player
-                        i += 1
-                    # Vertical
-                    j = row - 3 if (row%7) > 3 else 0
-                    while j <= row and j <= const.NUM_ROWS-4:
-                        if matrix[col][j]==matrix[col][j+1]==matrix[col][j+2]==matrix[col][j+3]:
-                            return True, self._player
-                        j += 1
-                    # Diagonal Left to rigth down
-                    startCol = col - 3 if col > 3 else 0
-                    startRow = row + 3 if col > 3 else row + col
-                    while startCol <= col and startCol <= 3:
-                        if startRow > 2 and startRow <6:
-                            if matrix[startCol][startRow]==matrix[startCol+1][startRow-1]\
-                            ==matrix[startCol+2][startRow-2]==matrix[startCol+3][startRow-3]:
-                                return True, self._player
-                        startCol += 1
-                        startRow -= 1
-                    # Diagonal left to Right up
-                    startCol = col - 3 if col > 3 else 0
-                    startRow = row - 3 if col > 3 else row - col
-                    while startCol <= col and startCol <= 3:
-                        if startRow >= 0 and startRow <4:
-                            if matrix[startCol][startRow]==matrix[startCol+1][startRow+1]\
-                            ==matrix[startCol+2][startRow+2]==matrix[startCol+3][startRow+3]:
-                                return True, self._player
-                        startCol += 1
-                        startRow += 1
-        return False, 2
-
 
     def filledMatrix(self):
         e = const.EMPTY_VAL
