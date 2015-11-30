@@ -37,7 +37,7 @@ def promptPlayers(in_pair=None):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
     if in_pair != None:
-        ptype = in_pair
+        ptype = list(in_pair)
     else:
         ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
         ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
