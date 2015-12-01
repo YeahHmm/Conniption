@@ -71,4 +71,4 @@ def printStatsToFile(stats, fname):
     for row in data:
         write.writerow(row)
 
-printStatsToFile(buildStats('save.pkl'), 'results.csv')
+printStatsToFile(buildStats('../log/merged.pkl'), 'results.csv')
