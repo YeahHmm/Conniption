@@ -46,7 +46,8 @@ class Game:
             data = []
 
         players = tuple(map(lambda p: p._name if p is not None else p, pair))
-        win_state = (self._gameEnd, self._winner._name)
+        win_name = self._winner._name if self._winner is not None else None
+        win_state = (self._gameEnd, win_name)
         mv_list = tuple(self._history)
 
         game = (players, win_state, mv_list)

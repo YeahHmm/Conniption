@@ -51,7 +51,7 @@ class SystemState:
         self._num_flips = num_flips
         self._is_down = is_down
         self._stage = stage
-        self._num_placed = 0
+        self._num_placed = num_placed
 
     def update(self, mv):
         new_board = deepcopy(self._board)
@@ -124,10 +124,15 @@ class SystemState:
             return self._isGoal_place()
         elif self._prev_move._action == 'none' and check_none:
             return self._isGoal_flip()
+        elif self._isDraw():
+            return (True, const.EMPTY_VAL)
 
         return (False, const.EMPTY_VAL)
 
-    # Rewrite to check for draws
+    def _isDraw(self):
+        return self._num_placed == const.NUM_COLS * const.NUM_ROWS and \
+            self._stage == 1
+
     def _isGoal_flip(self):
         slen = const.LEN_SOL
         sgraph = const.SOLS_GRAPH
@@ -163,8 +168,7 @@ class SystemState:
             return (True, player)
         elif len(lose_sols) > 0:
             return (True, int(not player))
-        elif self._num_placed == const.NUM_COLS * const.NUM_ROWS and \
-                self._stage == const.NUM_STAGES-1:
+        elif self._isDraw():
             return (True, const.EMPTY_VAL)
         else:
             return (False, const.EMPTY_VAL)
@@ -179,11 +183,10 @@ class SystemState:
             if len(list(ls)) == const.LEN_SOL:
                 return (True, self._player)
 
-        if self._num_placed == const.NUM_COLS * const.NUM_ROWS and \
-                self._stage == const.NUM_STAGES-1:
+        if self._isDraw():
             return (True, const.EMPTY_VAL)
-
-        return (False, const.EMPTY_VAL)
+        else:
+            return (False, const.EMPTY_VAL)
 
     def filledMatrix(self):
         e = const.EMPTY_VAL

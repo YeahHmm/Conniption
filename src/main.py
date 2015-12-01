@@ -39,8 +39,8 @@ def promptPlayers(in_pair=None):
     if in_pair != None:
         ptype = list(in_pair)
     else:
-        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
-        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]")
+        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]: ")
+        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]: ")
 
     for i in range(len(ptype)):
         if ptype[i].isnumeric():
@@ -81,11 +81,12 @@ def promptPlayers(in_pair=None):
     return (p1, p2)
 
 
-def promptContinue(stats):
+def promptContinue(stats, msg=''):
     p1 = stats['game']._player_pair[0]
     p2 = stats['game']._player_pair[1]
     results = stats['results']
-    msg = str(p1) + ': ' + '/'.join(map(str, results))
+    msg = '\n' + msg + '\n'
+    msg += str(p1) + ': ' + '/'.join(map(str, results))
     msg += '\n'
     msg += str(p2) + ': ' + '/'.join(map(str, (results[1], results[0], results[2])))
     msg += '\n'
@@ -107,8 +108,8 @@ def main():
         pair = None
         save_file = "save.pkl"
 
-    const.DEBUG = True
-    const.MAX_FLIPS = 4
+    const.DEBUG = False
+    const.MAX_FLIPS = 3
     const.NUM_LOOK = 3
 
     num_games = 100
@@ -119,16 +120,16 @@ def main():
     stats = {}
     stats['results'] = [0, 0, 0]
 
-    for i in range(num_games):
+    #for i in range(num_games):
+    while play_again:
         game = Game(player_pair)
         stats['game'] = game
 
-        while not game._gameEnd:
+        while not game.checkWin():
             game.drawScreen()
             mv = game.getCurPlayer().choose_move(game.getState())
 
             game.update(mv)
-            game.checkWin()
 
         game.save(save_file)
         if game._winner is None:
@@ -137,9 +138,8 @@ def main():
         else:
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
-        game.drawScreen(msg)
 
-        #play_again = promptContinue(stats)
+        play_again = promptContinue(stats, msg)
 
 if __name__ == "__main__":
     #test()
