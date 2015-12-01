@@ -8,13 +8,14 @@ from game import Game, Human, AI
 from printing import prompt
 from resource import SystemState, Move
 
+# Testing function to more concisely build a board
 def place(game, player, col):
     game.update(Move('none', player))
     game.update(Move('place', player, col))
     game.update(Move('none', player))
 
+# Testing method
 def test():
-
     const.DEBUG = True
     ai1 = Human('P1')
     ai2 = Human('P2')
@@ -33,6 +34,7 @@ def test():
         game.drawScreen()
         print(game.checkWin())
 
+# Prompt for player types and names
 def promptPlayers(in_pair=None):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
@@ -80,7 +82,7 @@ def promptPlayers(in_pair=None):
 
     return (p1, p2)
 
-
+# Ask if supervisor wants to run another game
 def promptContinue(stats, msg=''):
     p1 = stats['game']._player_pair[0]
     p2 = stats['game']._player_pair[1]
@@ -100,7 +102,9 @@ def promptContinue(stats, msg=''):
 
     return response
 
+# Primary game loop
 def main():
+    # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
         pair = (sys.argv[1], sys.argv[2])
         save_file = sys.argv[3]
@@ -108,6 +112,7 @@ def main():
         pair = None
         save_file = "save.pkl"
 
+    # Config info for debugging or game tweaking
     const.DEBUG = False
     const.MAX_FLIPS = 3
     const.NUM_LOOK = 3
@@ -122,16 +127,21 @@ def main():
 
     #for i in range(num_games):
     while play_again:
+        # Begin new game
         game = Game(player_pair)
         stats['game'] = game
 
+        # Play until game ends
         while not game.checkWin():
             game.drawScreen()
             mv = game.getCurPlayer().choose_move(game.getState())
 
             game.update(mv)
 
+        # Log moves and results with pickle
         game.save(save_file)
+
+        # Prompt for replay
         if game._winner is None:
             msg = "The game was a draw!"
             stats['results'][2] += 1

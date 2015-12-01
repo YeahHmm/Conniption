@@ -13,6 +13,11 @@ import const
 from printing import prompt
 from resource import Node, Move, SystemState
 
+
+'''
+Class used by main game loop to handle printing, logging, players,
+and other functions with SystemState as a backend.
+'''
 class Game:
     def __init__(self, player_pair):
         self._state = SystemState()
@@ -24,13 +29,22 @@ class Game:
     def getState(self):
         return self._state
 
+    '''
+    Get Player object from SystemState _player value
+    '''
     def getCurPlayer(self):
         return self._player_pair[self._state._player]
 
+    '''
+    Update SystemState and record Move
+    '''
     def update(self, mv):
         self._state = self._state.update(mv)
         self._history.append(mv)
 
+    '''
+    Check and return whether game is complete and record winning Player
+    '''
     def checkWin(self):
         self._gameEnd, winner = self._state.isGoal()
         if self._gameEnd and winner != const.EMPTY_VAL:
@@ -38,6 +52,9 @@ class Game:
 
         return self._gameEnd
 
+    '''
+    Save game information with pickle
+    '''
     def save(self, fname):
         pair = self._player_pair
         if os.path.isfile(fname):
@@ -57,6 +74,9 @@ class Game:
         pickle.dump(data, f)
         f.close()
 
+    '''
+    Write game information to text file
+    '''
     def log(self, fname):
         pair = self._player_pair
         f = open(fname, 'a')
@@ -69,6 +89,10 @@ class Game:
         f.write(line + "\n")
         f.close()
 
+    '''
+    Draw game screen with optional message. Clears previous screen unless
+    const.DEBUG denotes debug mode.
+    '''
     def drawScreen(self, msg=''):
         if not const.DEBUG:
             os.system('clear')
@@ -97,6 +121,9 @@ class Game:
             print(msg)
 
 
+'''
+Base Player class intended for extension.
+'''
 class Player:
     def __init__(self, name):
         self._name = name
@@ -120,22 +147,35 @@ class Player:
         pass
 
 
+'''
+Extends Player class and implements a choose_move() function that allows
+manual play.
+'''
 class Human(Player):
+    '''
+    Asks the user to choose a move. Returns a Move object after a valid Move
+    is chosen.
+    '''
     def choose_move(self, state):
         mv = None
+        # Do not return until Move is valid
         while not mv or not state.validMove(mv):
             if state._stage == 0 or state._stage == 2:
+                # Prompt for pass or flip if both are options
                 if state._prev_move._action != 'flip' and \
                         state._num_flips[state._player] < const.MAX_FLIPS:
                     msg = 'Flip or Pass [f or p]:'
                     mapping = {'f':'flip', 'p':'none'}
+                # Automatically pass if only option is a none Move
                 else:
                     mv = Move('none', state._player)
                     break
+            # Prompt for column if in 2nd stage of turn
             elif state._stage == 1:
                 msg = 'Place [1-%d]:' % (const.NUM_COLS + 1)
                 mapping = {str(n) : 'place' for n in range(1, const.NUM_COLS + 1)}
 
+            # Get key pressed by user and create a corresponding Move object
             sys.stdout.flush()
             key = prompt(msg).lower()
             if key in mapping:
@@ -147,6 +187,11 @@ class Human(Player):
         return mv
 
 
+'''
+Extends Player class and allows for creation of custom AI players. Requires
+an evaluation function and supports choosing a depth limit and a tie breaker
+between moves.
+'''
 class AI(Player):
     def __init__(self, name, evalFunc, max_depth=1, tieChoice=None):
         self.evalFunc = evalFunc
@@ -154,6 +199,9 @@ class AI(Player):
         self._max_depth = max_depth
         super().__init__(name)
 
+    '''
+    Run a minimax search to choose a Move
+    '''
     def choose_move(self, state):
         mv = self._minimax(state, state._player == 0)
         return mv
@@ -161,6 +209,10 @@ class AI(Player):
     def toTuple(self):
         return (self._name, self.evalFunc)
 
+    '''
+    Base minimax function. Initializes a recursive search with alpha-beta
+    pruning.
+    '''
     def _minimax(self, base_state, get_max):
         mv_list = base_state.genMoves()
 
@@ -169,6 +221,8 @@ class AI(Player):
         new_choice = cmod ^ get_max
         new_depth = new_choice != get_max
 
+        # Get list of Nodes with Move objects as items and evaluation
+        # scores as values
         children = []
         for mv in mv_list:
             new_state = base_state.update(mv)
@@ -178,6 +232,8 @@ class AI(Player):
 
             children.append(Node(mv_val, mv))
 
+        # Sort the options and choose the best using the provided tie breaker
+        # if one was provided. Otherwise use the built-in choice function.
         if self.tieChoice is not None:
             return self.tieChoice(children, get_max)
         else:
@@ -185,10 +241,12 @@ class AI(Player):
 
     def _minimax_help(self, base_state, depth, get_max, init_choice,
             alpha=None, beta=None):
+        # Run evaluation function at depth limit
         if depth > self._max_depth and base_state._stage == 0:
             val = self.evalFunc(base_state)
             return val
 
+        # Run evaluation function if end of game found
         if base_state.isGoal()[0]:
             val = self.evalFunc(base_state)
             return val
@@ -202,33 +260,46 @@ class AI(Player):
         mv_list = base_state.genMoves()
         best = None
         for mv in mv_list:
+            # Get next state and recurse
             new_state = base_state.update(mv)
             val = self._minimax_help(new_state, new_depth, \
                     new_choice, init_choice, alpha, beta)
 
+            # Update best if no best found or if val is preferable
             if best == None:
                 best = val
             elif choice_func(best, val) == val:
                 best = val
 
+            # Update alpha if maximizing and best is larger
             if get_max:
                 if alpha == None or (best != None and best > alpha):
                     alpha = best
+            # Update beta if minimizing and best is smaller
             elif not get_max:
                 if beta == None or (best != None and best < beta):
                     beta = best
 
+            # Stop when alpha is larger than beta (prune)
             if alpha != None and beta != None and alpha > beta:
                 break
 
+        # Return best evaluation value
         return best
 
+    '''
+    A default tie breaker where ties are broken at random
+    '''
     @staticmethod
     def tieChoice_random(node_list, get_max=True):
+        # Sort based upon minimizing or maximizing
         node_list.sort(reverse=not get_max)
+
+        # Grab the best values
         best = []
         best_val = node_list[0]._value
         while len(node_list) > 0 and node_list[0]._value == best_val:
             best.append(node_list.pop())
 
+        # Choose a random one from the list
         return random.choice(best)._item
