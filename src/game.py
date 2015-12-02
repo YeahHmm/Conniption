@@ -172,7 +172,7 @@ class Human(Player):
                     break
             # Prompt for column if in 2nd stage of turn
             elif state._stage == 1:
-                msg = 'Place [1-%d]:' % (const.NUM_COLS + 1)
+                msg = 'Place [1-%d]:' % (const.NUM_COLS)
                 mapping = {str(n) : 'place' for n in range(1, const.NUM_COLS + 1)}
 
             # Get key pressed by user and create a corresponding Move object
