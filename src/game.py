@@ -302,4 +302,7 @@ class AI(Player):
             best.append(node_list.pop())
 
         # Choose a random one from the list
-        return random.choice(best)._item
+        node = random.choice(best)
+        print(node._value)
+        return node._item
+

@@ -132,6 +132,60 @@ def flip_bias_hybrid(state):
         val -= mod * bias
     return val
 
+def test_bias(state):
+    board = state.filledMatrix()
+    sgraph = const.SOLS_GRAPH
+    sdict = {s : True for s in sgraph.getVertices()}
+
+    zoneCounts = [[0]*4, [0]*4]
+    for sol in sdict:
+        # Skip flagged solutions
+        if not sdict[sol]:
+            continue
+
+        # Find unique values in solution's cells
+        vals = set(map(lambda p: board[p[0]][p[1]], sol))
+
+        if const.EMPTY_VAL in vals:
+            # Flag solution if it is completely empty
+            if len(vals) == 1:
+                sdict[sol] = False
+                continue
+            # Remove const.EMPTY_VAL if solution is not empty
+            else:
+                vals.remove(const.EMPTY_VAL)
+
+        # Flag solutions containing different tiles
+        if 0 in vals and 1 in vals:
+            vals_max = list(filter(lambda p: board[p[0]][p[1]] == 0, sol))
+            vals_min = list(filter(lambda p: board[p[0]][p[1]] == 1, sol))
+
+            for pair in map(lambda p: tuple(sorted(p)), \
+                    product(vals_max, vals_min)):
+                for s in sgraph.neighbors(sol, pair):
+                    sdict[s] = False
+            continue
+
+        # Get player that controls the solution and count number of tiles
+        # in the solution
+        player = list(vals)[0]
+        numPlaced = len(list(filter(lambda p: board[p[0]][p[1]] != 2, sol)))
+
+        # Increment the appropriate counter
+        zoneCounts[player][numPlaced-1] += 1
+
+    # Assign the weights for the number of tiles controlling a solution
+    flip_bias = 50
+    weights = [1, 4, 8, 1024]
+    zoneCounts[0] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[0], weights)))
+    zoneCounts[1] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[1], weights)))
+
+    if state._prev_move._action == 'flip':
+        pass
+    # Return the difference between the two scores
+    return sum(zoneCounts[0]) - sum(zoneCounts[1])
+
+
 '''
 Assign a random score from 0 to 9.
 '''
