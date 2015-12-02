@@ -126,11 +126,11 @@ def cell_sol_hybrid(state):
 
 def flip_bias_hybrid(state):
     val = cell_sol_hybrid(state)
-    bias = 40
-    mod =  1 if state._prev_move._player == 0 else -1
-    if state._prev_move._action == 'flip' and val < 1024:
-        val -= mod * bias
-    return val
+    bias = 10
+    p1_bias = -bias * state._num_flips[0]
+    p2_bias = bias * state._num_flips[1]
+
+    return val + p1_bias + p2_bias
 
 '''
 Assign a random score from 0 to 9.
