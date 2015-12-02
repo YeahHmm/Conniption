@@ -37,12 +37,12 @@ def test():
 # Prompt for player types and names
 def promptPlayers(in_pair=None):
     ptype = [None, None]
-    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'RANDOM']
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM']
     if in_pair != None:
         ptype = list(in_pair)
     else:
-        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]: ")
-        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Random]: ")
+        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Flip], [6: Random]: ")
+        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Flip], [6: Random]: ")
 
     for i in range(len(ptype)):
         if ptype[i].isnumeric():
@@ -54,8 +54,10 @@ def promptPlayers(in_pair=None):
     pclass = [AI, AI]
     pfunc = [None, None]
     for i in range(2):
-        if ptype[i] == "RANDOM" or ptype[i] == "5":
+        if ptype[i] == "RANDOM" or ptype[i] == "6":
             pfunc[i] = random_move
+        elif ptype[i] == "FLIP" or ptype[i] == "5":
+            pfunc[i] = flip_bias_hybrid
         elif ptype[i] == "CELLS" or ptype[i] == "3":
             pfunc[i] = controlled_cells
         elif ptype[i] == "SOLS" or ptype[i] == "2":
@@ -114,7 +116,7 @@ def main():
 
     # Config info for debugging or game tweaking
     const.DEBUG = False
-    const.MAX_FLIPS = 3
+    const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
     num_games = 100
