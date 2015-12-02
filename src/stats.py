@@ -9,7 +9,7 @@ Input varibles:
 '''
 
 def buildStats(fname):
-    names = {'HYBRID', 'CELLS', 'SOLS', 'RANDOM'}
+    names = {'HYBRID', 'CELLS', 'SOLS', 'FLIP' ,'RANDOM'}
 
     data = {nm+'1': {nm+'2': [] for nm in names} for nm in names}
 
@@ -47,7 +47,7 @@ Input varibles:
 '''
 
 def printStatsToFile(stats, fname):
-    names = ['HYBRID', 'CELLS', 'SOLS', 'RANDOM']
+    names = ['HYBRID', 'CELLS', 'SOLS','FLIP', 'RANDOM']
     col_headers = [
         'Evaluation',
         'W v Hy2',

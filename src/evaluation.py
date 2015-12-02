@@ -83,7 +83,7 @@ def controlled_sols(state):
         zoneCounts[player][numPlaced-1] += 1
 
     # Assign the weights for the number of tiles controlling a solution
-    weights = [1, 4, 8, 1024]
+    weights = [1, 4, 16, 1024]
     zoneCounts[0] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[0], weights)))
     zoneCounts[1] = list(map(lambda p: p[0]*p[1], zip(zoneCounts[1], weights)))
 

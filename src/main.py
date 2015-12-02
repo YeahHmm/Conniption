@@ -115,7 +115,7 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = False
+    const.DEBUG = True
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
@@ -127,8 +127,8 @@ def main():
     stats = {}
     stats['results'] = [0, 0, 0]
 
-    #for i in range(num_games):
-    while play_again:
+    for i in range(num_games):
+    #while play_again:
         # Begin new game
         game = Game(player_pair)
         stats['game'] = game
@@ -151,7 +151,7 @@ def main():
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
 
-        play_again = promptContinue(stats, msg)
+        #play_again = promptContinue(stats, msg)
 
 if __name__ == "__main__":
     #test()
