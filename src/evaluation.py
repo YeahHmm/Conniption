@@ -126,9 +126,9 @@ def cell_sol_hybrid(state):
 
 def flip_bias_hybrid(state):
     val = cell_sol_hybrid(state)
-    bias = 50
-    mod = 1 if state._prev_move._player == 0 else -1
-    if state._prev_move._action == 'flip':
+    bias = 40
+    mod =  1 if state._prev_move._player == 0 else -1
+    if state._prev_move._action == 'flip' and val < 1024:
         val -= mod * bias
     return val
 
