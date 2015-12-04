@@ -115,7 +115,7 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = True
+    const.DEBUG = False
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 

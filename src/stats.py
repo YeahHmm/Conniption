@@ -1,5 +1,6 @@
 import csv
 import pickle
+import sys
 
 '''
 The buildStats function parses a pickle file that contains the logs of
@@ -65,6 +66,11 @@ def printStatsToFile(stats, fname):
         'D v Sols2',
         'NumGames v Sols2',
         'AvgTurns v Sols2',
+        'W v Flip2',
+        'L v Flip2',
+        'D v Flip2',
+        'NumGames v Flip2',
+        'AvgTurns v Flip2'
         'W v Rand2',
         'L v Rand2',
         'D v Rand2',
@@ -86,4 +92,6 @@ def printStatsToFile(stats, fname):
     for row in data:
         write.writerow(row)
 
-printStatsToFile(buildStats('../log/merged.pkl'), 'results.csv')
+fname = sys.argv[1]
+fout = sys.argv[2]
+printStatsToFile(buildStats(fname), fout)
