@@ -10,9 +10,10 @@ For a detail description of the results obtained after the experimentation of al
 
 ## Usage
 
-Go to the [src](/src) directory.
+Go to the [src](/src) directory and go the following
 
-Version: `Python 2.7`
+Version: Python 2.7
+
 Run: `python main.py`
 
 ## Libraries being used
