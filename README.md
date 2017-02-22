@@ -24,4 +24,4 @@ Run: `python main.py`
 
 ## Results
 
-Please refer to [results](results_Conniption.docx)
+Please refer to [results](results_Conniption.pdf)
