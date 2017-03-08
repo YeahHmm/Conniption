@@ -127,7 +127,7 @@ def main():
     stats = {}
     stats['results'] = [0, 0, 0]
 
-    for i in range(num_games):
+    for _ in range(num_games):
     #while play_again:
         # Begin new game
         game = Game(player_pair)
