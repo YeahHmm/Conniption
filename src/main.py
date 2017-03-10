@@ -1,12 +1,12 @@
 import const
-import csv
 import sys
 #sys.setrecursionlimit(10000)
 
 from evaluation import *
 from game import Game, Human, AI
 from printing import prompt
-from resource import SystemState, Move
+from resource import Move
+from reinforce import Qlearn
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -41,8 +41,10 @@ def promptPlayers(in_pair=None):
     if in_pair != None:
         ptype = list(in_pair)
     else:
-        ptype[0] = input("Enter Player 1 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Flip], [6: Random]: ")
-        ptype[1] = input("Enter Player 2 type: [1: Human], [2: Sols], [3: Cells], [4: Hybrid], [5: Flip], [6: Random]: ")
+        prompt_string = "Enter Player 1 type: \n\t[1: Human], \n\t[2: Sols]," \
+                        + "\n\t[3: Cells],\n\t[4: Hybrid],\n\t[5: Flip],\n\t[6: Random] \n\t[7: QLearn]\n Choose: "
+        ptype[0] = input(prompt_string)
+        ptype[1] = input(prompt_string)
 
     for i in range(len(ptype)):
         if ptype[i].isnumeric():

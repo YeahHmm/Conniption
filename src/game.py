@@ -124,7 +124,7 @@ class Game:
 '''
 Base Player class intended for extension.
 '''
-class Player:
+class Player(object):
     def __init__(self, name):
         self._name = name
 
@@ -305,4 +305,3 @@ class AI(Player):
         node = random.choice(best)
         print(node._value)
         return node._item
-
