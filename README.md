@@ -6,13 +6,12 @@ This repository includes a command-line base version of the game which can be ru
 
 Once the program is launched you will be able to chose to play as a human, or between 5 different Artificial Intelligent agents which use separeta evaluation functions and the implementation of a minimax algorithm with aplha-beta pruning implemented. For more details about the architecture refer to: [AIConniptionArchitecture](AIConniptionArchitecture.pdf)
 
-For a detail description of the results obtained after the experimentation of all the different evaluation functions against each other and detail analysis of the metrics obtained refer to: results_Conniption.docx
 
 ## Usage
 
 Go to the [src](/src) directory and go the following
 
-Version: Python 2.7
+Version: Python 3.
 
 Run: `python main.py`
 
@@ -24,4 +23,4 @@ Run: `python main.py`
 
 ## Results
 
-Please refer to [results](results_Conniption.pdf)
+For a detail description of the results obtained after the experimentation of all the different evaluation functions against each other and detail analysis of the metrics obtained refer to:  [results](results_Conniption.pdf)
