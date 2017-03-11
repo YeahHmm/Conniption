@@ -37,7 +37,7 @@ def test():
 # Prompt for player types and names
 def promptPlayers(in_pair=None):
     ptype = [None, None]
-    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM']
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN']
     if in_pair != None:
         ptype = list(in_pair)
     else:
@@ -58,6 +58,9 @@ def promptPlayers(in_pair=None):
     for i in range(2):
         if ptype[i] == "RANDOM" or ptype[i] == "6":
             pfunc[i] = random_move
+        elif ptype[i] == "QLEARN" or ptype[i] == "7":
+            pfunc[i] = flip_bias_hybrid
+            pclass[i] = Qlearn
         elif ptype[i] == "FLIP" or ptype[i] == "5":
             pfunc[i] = flip_bias_hybrid
         elif ptype[i] == "CELLS" or ptype[i] == "3":
@@ -72,6 +75,8 @@ def promptPlayers(in_pair=None):
 
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
+    elif pclass[0] == Qlearn:
+        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -79,6 +84,8 @@ def promptPlayers(in_pair=None):
 
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
+    elif pclass[1] == Qlearn:
+        p1 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:

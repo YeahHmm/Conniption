@@ -9,4 +9,4 @@ class Qlearn(game.AI):
                 tieChoice=tieChoice)
 
     def choose_move(self, state):
-        return super.choose_move(state)
+        return super().choose_move(state)
