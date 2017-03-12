@@ -1,6 +1,12 @@
 import game
 
 
+'''
+Extends AI class (which is a child of the Player class) and allows for creation
+of custom AI players. 
+Requires an evaluation function and supports choosing a depth limit and
+a tie breaker between moves.
+'''
 
 class Qlearn(game.AI):
 

@@ -146,7 +146,7 @@ def main():
         while not game.checkWin():
             game.drawScreen()
             mv = game.getCurPlayer().choose_move(game.getState())
-
+            print (mv.__hash__())
             game.update(mv)
 
         # Log moves and results with pickle

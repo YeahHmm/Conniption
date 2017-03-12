@@ -203,7 +203,9 @@ class AI(Player):
     Run a minimax search to choose a Move
     '''
     def choose_move(self, state):
+        # If player 0 maximize, else minimize
         mv = self._minimax(state, state._player == 0)
+        print (mv)
         return mv
 
     def toTuple(self):
@@ -215,6 +217,7 @@ class AI(Player):
     '''
     def _minimax(self, base_state, get_max):
         mv_list = base_state.genMoves()
+        #print (mv_list, len(mv_list))
 
         # Data for next recursion
         cmod = base_state._stage == const.NUM_STAGES - 1

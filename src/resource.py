@@ -17,7 +17,7 @@ class Node:
 
     def __eq__(self, nd):
         return self._value == nd._value
-    
+
     def __lt__(self, nd):
         return self._value < nd._value
 
@@ -86,7 +86,8 @@ class SystemState:
         if mv._action == 'flip':
             if self._prev_move._player == mv._player:
                 new_player = int(not new_player)
-            new_flips = tuple(map(lambda i: new_flips[i] + (i == self._player), range(2)))
+            new_flips = tuple(map(lambda i: new_flips[i] + (i == self._player), \
+                range(2)))
             new_down = int(not new_down)
         # Increment num_placed and place tile in correct position
         elif mv._action == 'place':
@@ -130,7 +131,7 @@ class SystemState:
         # Cannot flip twice in a row
         else:
             return mv._action == 'none'
-        
+
         return False
 
     '''
@@ -264,7 +265,7 @@ class SystemState:
             if len(list(ls)) == const.LEN_SOL:
                 return (True, self._player)
 
-        
+
         return (False, const.EMPTY_VAL)
 
     '''
@@ -330,7 +331,7 @@ class SystemState:
     '''
     Construct the data structures used by isGoal() and evaluation functions
     for optimized searching.
-    
+
     const.SOLS_GRAPH is a graph with solution
     coordinates as nodes and adjacencies drawn between solutions that share
     cells or pairs of cells.
