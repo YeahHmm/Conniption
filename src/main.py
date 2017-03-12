@@ -85,7 +85,7 @@ def promptPlayers(in_pair=None):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
-        p1 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
+        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
@@ -124,14 +124,14 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = False
+    const.DEBUG = True
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    num_games = 100
+    num_games = 1
 
     player_pair = promptPlayers(pair)
-    play_again = True
+    play_again =  False
 
     stats = {}
     stats['results'] = [0, 0, 0]
@@ -160,7 +160,7 @@ def main():
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
 
-        #play_again = promptContinue(stats, msg)
+        play_again = promptContinue(stats, msg)
 
 if __name__ == "__main__":
     #test()
