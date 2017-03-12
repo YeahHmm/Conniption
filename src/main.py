@@ -76,7 +76,7 @@ def promptPlayers(in_pair=None):
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
-        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority)
+        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -85,7 +85,7 @@ def promptPlayers(in_pair=None):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
-        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
+        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
@@ -146,7 +146,7 @@ def main():
         while not game.checkWin():
             game.drawScreen()
             mv = game.getCurPlayer().choose_move(game.getState())
-            print (mv.__hash__())
+            #print (mv.__hash__())
             game.update(mv)
 
         # Log moves and results with pickle

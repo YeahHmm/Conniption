@@ -205,7 +205,6 @@ class AI(Player):
     def choose_move(self, state):
         # If player 0 maximize, else minimize
         mv = self._minimax(state, state._player == 0)
-        print (mv)
         return mv
 
     def toTuple(self):
@@ -306,5 +305,5 @@ class AI(Player):
 
         # Choose a random one from the list
         node = random.choice(best)
-        print(node._value)
+        print(node._value, node._item)
         return node._item

@@ -14,13 +14,11 @@ Moves are randomly sorted.
 def tieChoice_priority(node_list, get_max=True):
     # Sort based on minimizing or maximizing
     node_list.sort(reverse=not get_max)
-
     # Functions to assign weights to Move objects. Lower is preferred.
     weight = {'none': lambda mv: -1,
             'place': lambda mv: random.randint(0, const.NUM_COLS),
             'flip':lambda mv: const.NUM_COLS
         }
-
     # Get the best Move objects, and assign new weights based on Move type
     first = node_list.pop()
     best = [Node(weight[first._item._action](first._item), first)]
@@ -32,7 +30,38 @@ def tieChoice_priority(node_list, get_max=True):
         heapq.heappush(best, Node(weight[mv._action](mv), node))
 
     # Choose the Move with the smallest weight
-    return heapq.heappop(best)._item._item
+    smallest = heapq.heappop(best)._item
+    return smallest._item
+
+'''
+Same logic as the above tiebreaker, returns a Node object
+in order to use the value in the Qlearn function
+'''
+
+def tieChoice_priority_qlearn(node_list, get_max):
+        # Sort based on minimizing or maximizing
+        node_list.sort(reverse=not get_max)
+        # Functions to assign weights to Move objects. Lower is preferred.
+        weight = {'none': lambda mv: -1,
+                'place': lambda mv: random.randint(0, const.NUM_COLS),
+                'flip':lambda mv: const.NUM_COLS
+            }
+        print(node_list)
+        # Get the best Move objects, and assign new weights based on Move type
+        first = node_list.pop()
+        best = [Node(weight[first._item._action](first._item), first)]
+        best_val = best[0]._item._value
+
+        print (best)
+        print (best_val)
+        while len(node_list) > 0 and node_list[-1]._value == best_val:
+            node = node_list.pop()
+            mv = node._item
+            heapq.heappush(best, Node(weight[mv._action](mv), node))
+
+        # Choose the Move with the smallest weight
+        smallest = heapq.heappop(best)._item
+        return smallest
 
 '''
 Uses const.SOLS_GRAPH to perform calculation. A player's score is based on
