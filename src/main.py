@@ -76,7 +76,8 @@ def promptPlayers(in_pair=None):
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
-        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn)
+        p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
+            learning=True)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -85,7 +86,8 @@ def promptPlayers(in_pair=None):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
-        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn)
+        p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
+            learning=True)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:

@@ -16,27 +16,52 @@ class Qlearn(game.AI):
         self.alpha = alpha
         self.epsilon = epsilon
         self.Q = dict()
-        self.def_dic = lambda: {
-                                'place': {-1: 0.},
-                                'flip': {
-                                        0: 0.,
-                                        1: 0.,
-                                        2: 0.,
-                                        3: 0.,
-                                        4: 0.,
-                                        5: 0.,
-                                        6: 0.
-                                },
-                                'none': {-1: 0.}
+
+        '''
+        Based on the game selection stages: (flip or none, place, flip or none)
+        a different dict is provided. Place will indicate the column in
+        which the coin will be placed while flip or none the decision to
+        flip the board or not
+        '''
+        self.def_dic_flip = lambda: {
+                                'place': 0.0,
+                                'none': 0.0
+        }
+        self.def_dic_place = lambda: {
+                                    0: 0.,
+                                    1: 0.,
+                                    2: 0.,
+                                    3: 0.,
+                                    4: 0.,
+                                    5: 0.,
+                                    6: 0.
         }
         super().__init__(name, evalFunc, max_depth=max_depth, \
                 tieChoice=tieChoice)
 
+    '''
+    Create dict based on the system state and the stage in which the
+    system is located. The state is find by the hash function generated
+    from the board tuples.
 
-    def createQ(self):
-        pass
+    The hash representation contains the board and the stage.
+    More variables could be added in the feature, this two were
+    selected in order to keep the number of instances as small
+    as possible. 
+    '''
+    def createQ(self, state):
+        if self.learning and state.__hash__() not in self.Q:
+            if state._stage == 0 or state._stage == 2:
+                self.Q[state.__hash__()] = self.def_dic_flip()
+            else:
+                self.Q[state.__hash__()] = self.def_dic_place()
 
     def choose_move(self, state):
+        self.createQ(state)
+        print (state._stage)
+        print ('Number of states: ', len(self.Q))
+        print (self.Q)
+        moves = state.genMoves()
         mv = super().choose_move(state)
         print (mv, 'from Qlearn')
         return mv._item
