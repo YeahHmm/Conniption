@@ -26,6 +26,15 @@ class Game:
         self._winner = None
         self._gameEnd = False
 
+    '''
+    Reset function used for reinforcement learning
+    Updates epsilon value
+    '''
+    def reset(self, testing=False):
+        self._state = SystemState()
+        #self._player_pair[0].reset(testing=testing)
+        #self._player_pair[1].reset(testing=testing)
+
     def getState(self):
         return self._state
 
@@ -146,6 +155,9 @@ class Player(object):
     def choose_move(self, state):
         pass
 
+    def reset(self, testing=False):
+        pass
+
 
 '''
 Extends Player class and implements a choose_move() function that allows
@@ -198,6 +210,9 @@ class AI(Player):
         self.tieChoice = tieChoice
         self._max_depth = max_depth
         super().__init__(name)
+
+    def reset(self, testing=False):
+        return
 
     '''
     Run a minimax search to choose a Move

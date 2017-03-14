@@ -1,4 +1,4 @@
-import game
+import game, math
 import random
 import resource
 import const
@@ -23,6 +23,7 @@ class Qlearn(game.Player):
         self.learning = learning
         self.alpha = alpha
         self.epsilon = epsilon
+        self.trial_num = 0
         self.Q = dict()
         super().__init__(name)
 
@@ -46,33 +47,46 @@ class Qlearn(game.Player):
                                     6: 0.
         }
 
-    '''
-    Create dict based on the system state and the stage in which the
-    system is located. The state is find by the hash function generated
-    from the board tuples.
+    def reset(self, testing=False):
 
-    The hash representation contains the board and the stage.
-    More variables could be added in the feature, this two were
-    selected in order to keep the number of instances as small
-    as possible.
-    '''
+        self.trial_num += 1
+        a = 0.99
+        #self.epsilon = math.cos( a * self.trial_num)
+        self.epsilon = self.epsilon - 0.005
+        if testing == True:
+            self.epsilon = 0
+            self.alpha = 0
+        return None
+
+
     def createQ(self, state):
+        '''
+        Create dict based on the system state and the stage in which the
+        system is located. The state is find by the hash function generated
+        from the board tuples.
+
+        The hash representation contains the board and the stage.
+        More variables could be added in the feature, this two were
+        selected in order to keep the number of instances as small
+        as possible.
+        '''
         if self.learning and state.__hash__() not in self.Q:
             if state._stage == 0 or state._stage == 2:
                 self.Q[state.__hash__()] = self.def_dic_flip()
             else:
                 self.Q[state.__hash__()] = self.def_dic_place()
 
-    '''
-    Returns Q-value based on the player that is requested,
-    player one it returns the biggest positive number,
-    while player two returns the smallest negative number.
-    This is due to player one maximizing while player two
-    minimizing
-    '''
     def get_maxQ(self, state):
+        '''
+        Returns Q-value based on the player that is requested,
+        player one it returns the biggest positive number,
+        while player two returns the smallest negative number.
+        This is due to player one maximizing while player two
+        minimizing
+        '''
         items = self.Q[state.__hash__()].items()
-        maxQ = sorted(items, reverse= state._player == 0)[0]
+        #print ('get_maxQ_items', items)
+        maxQ = sorted(items, reverse= state._player == 0)[0][1]
         return maxQ
 
     def choose_action(self, state):
@@ -88,7 +102,7 @@ class Qlearn(game.Player):
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
 
-
+        #print (moves)
         if not self.learning:
             return moves[rand_num]
         else:
@@ -98,7 +112,7 @@ class Qlearn(game.Player):
             else:
                 maxQ = self.get_maxQ(state)
                 max_states = []
-                for key in self.Q[state.__hash__()]:
+                for key in moves:
                     if maxQ == self.Q[state.__hash__()][key]:
                         max_states.append(key)
                 action = random.choice(max_states)
@@ -119,7 +133,7 @@ class Qlearn(game.Player):
             new_q = (1 - rate) * old_q + (reward * self.alpha)
             self.Q[state.__hash__()][action] = new_q
 
-        print ('learning val: ', old_q, new_q, move)
+        #print ('learning val: ', old_q, new_q, move)
         return
 
     def choose_move(self, state):
@@ -134,7 +148,7 @@ class Qlearn(game.Player):
             mv = Move('place', state._player, _action)
 
         self.learn(state, mv, _action)
-        print (mv, 'from Qlearn')
+        #print (mv, 'from Qlearn')
         return mv
 
 '''

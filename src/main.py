@@ -7,6 +7,7 @@ from game import Game, Human, AI
 from printing import prompt
 from resource import Move
 from reinforce import Qlearn, MinimaxQlearn
+from simulator import Simulator
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -35,7 +36,7 @@ def test():
         print(game.checkWin())
 
 # Prompt for player types and names
-def promptPlayers(in_pair=None):
+def promptPlayers(in_pair=None, _learning=True):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQLEARN']
     if in_pair != None:
@@ -81,10 +82,10 @@ def promptPlayers(in_pair=None):
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
-            learning=True)
+            learning=_learning)
     elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=True)
+            learning=_learning)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -94,10 +95,10 @@ def promptPlayers(in_pair=None):
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
         p1 = pclass[1](pname[1],pfunc[0],tieChoice=tieChoice_priority_qlearn,\
-            learning=True)
+            learning=_learning)
     elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=True)
+            learning=_learning)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
@@ -174,7 +175,41 @@ def main():
             stats['results'][game._player_pair.index(game._winner)] += 1
 
     play_again = promptContinue(stats, msg)
+    print (stats)
+
+
+# Primary game loop for Q_learn
+def mainQ(_learning=True):
+    # Set player types and logging if provided in command line
+    if len(sys.argv) == 4:
+        pair = (sys.argv[1], sys.argv[2])
+        save_file = sys.argv[3]
+    else:
+        pair = None
+        save_file = "save.pkl"
+
+    # Prompt players
+    # Needs to be adapted to get define parameters
+    player_pair = promptPlayers(pair, _learning)
+    # Create new game
+    game = Game(player_pair)
+
+    ######
+    # Create new simulation
+    # Flags:
+    #   - debug: (True, False)
+    sim = Simulator(game)
+
+
+    ######
+    # Run a simulation
+    # Flags:
+    # - tolerance=0.05 Epsilon tolerance to being testing.
+    # - n_test=0  Number of test to be conducted after training
+
+    sim.run(tolerance=0.05,n_test=40)
+
 
 if __name__ == "__main__":
     #test()
-    main()
+    mainQ()
