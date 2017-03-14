@@ -6,7 +6,7 @@ from evaluation import *
 from game import Game, Human, AI
 from printing import prompt
 from resource import Move
-from reinforce import Qlearn
+from reinforce import Qlearn, MinimaxQlearn
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -37,12 +37,13 @@ def test():
 # Prompt for player types and names
 def promptPlayers(in_pair=None):
     ptype = [None, None]
-    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN']
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQLEARN']
     if in_pair != None:
         ptype = list(in_pair)
     else:
         prompt_string = "Enter Player 1 type: \n\t[1: Human], \n\t[2: Sols]," \
-                        + "\n\t[3: Cells],\n\t[4: Hybrid],\n\t[5: Flip],\n\t[6: Random] \n\t[7: QLearn]\n Choose: "
+                        + "\n\t[3: Cells],\n\t[4: Hybrid],\n\t[5: Flip]," \
+                        + "\n\t[6: Random] \n\t[7: QLearn]\n\t[8: MinimaxQlearn]\nChoose: "
         ptype[0] = input(prompt_string)
         ptype[1] = input(prompt_string)
 
@@ -61,6 +62,9 @@ def promptPlayers(in_pair=None):
         elif ptype[i] == "QLEARN" or ptype[i] == "7":
             pfunc[i] = flip_bias_hybrid
             pclass[i] = Qlearn
+        elif ptype[i] == "MINIMAXQLEARN" or ptype[i] == "8":
+            pfunc[i] = flip_bias_hybrid
+            pclass[i] = MinimaxQlearn
         elif ptype[i] == "FLIP" or ptype[i] == "5":
             pfunc[i] = flip_bias_hybrid
         elif ptype[i] == "CELLS" or ptype[i] == "3":
@@ -76,6 +80,9 @@ def promptPlayers(in_pair=None):
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
+        p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
+            learning=True)
+    elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
             learning=True)
     elif pfunc[0] == random_move:
@@ -86,6 +93,9 @@ def promptPlayers(in_pair=None):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
+        p1 = pclass[1](pname[1],pfunc[0],tieChoice=tieChoice_priority_qlearn,\
+            learning=True)
+    elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
             learning=True)
     elif pfunc[1] == random_move:
@@ -126,11 +136,11 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = True
+    const.DEBUG = False
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    num_games = 1
+    num_games = 100
 
     player_pair = promptPlayers(pair)
     play_again =  False
@@ -150,7 +160,8 @@ def main():
             mv = game.getCurPlayer().choose_move(game.getState())
             #print (mv.__hash__())
             game.update(mv)
-
+        if game.getCurPlayer()._name == 'QLEARN1':
+            print (game.getCurPlayer().Q)
         # Log moves and results with pickle
         game.save(save_file)
 
@@ -162,7 +173,7 @@ def main():
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
 
-        play_again = promptContinue(stats, msg)
+    play_again = promptContinue(stats, msg)
 
 if __name__ == "__main__":
     #test()

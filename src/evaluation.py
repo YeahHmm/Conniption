@@ -28,7 +28,6 @@ def tieChoice_priority(node_list, get_max=True):
         node = node_list.pop()
         mv = node._item
         heapq.heappush(best, Node(weight[mv._action](mv), node))
-
     # Choose the Move with the smallest weight
     smallest = heapq.heappop(best)._item
     return smallest._item
@@ -46,13 +45,12 @@ def tieChoice_priority_qlearn(node_list, get_max):
                 'place': lambda mv: random.randint(0, const.NUM_COLS),
                 'flip':lambda mv: const.NUM_COLS
             }
+        #print(node_list)
         # Get the best Move objects, and assign new weights based on Move type
         first = node_list.pop()
         best = [Node(weight[first._item._action](first._item), first)]
         best_val = best[0]._item._value
 
-        #print (best)
-        #print (best_val)
         while len(node_list) > 0 and node_list[-1]._value == best_val:
             node = node_list.pop()
             mv = node._item
