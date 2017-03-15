@@ -196,8 +196,12 @@ class MinimaxQlearn(game.AI):
         super().__init__(name, evalFunc, max_depth=max_depth, \
                 tieChoice=tieChoice)
 
+    '''
+    The reset function is called at the beginning of each trial.
+    If 'testing' is true, it means the training trails have been
+    completed and there is no need for more.
+    '''
     def reset(self, testing=False):
-        print('hola')
         self.trial_num += 1
         a = 0.99
         self.epsilon = abs(math.cos( a * self.trial_num))

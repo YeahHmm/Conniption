@@ -33,20 +33,23 @@ def tieChoice_priority(node_list, get_max=True):
     return smallest._item
 
 '''
-Same logic as the above tiebreaker, returns a Node object
-in order to use the value in the Qlearn function
+Same logic as the above tiebreaker, returns list of nodes, each which
+contains the minimax value for each posible state. Those values
+are weighted in terms of the type of move.
+
+Makes the QLEARN object to be more inclined to take 'none' instead
+of flipping
 '''
 
 def tieChoice_priority_qlearn(node_list, get_max):
         # Sort based on minimizing or maximizing
         node_list.sort(reverse=not get_max)
-        print (node_list)
         # Functions to assign weights to Move objects. Lower is preferred.
         weight = {'none': lambda mv: -1,
                 'place': lambda mv: random.randint(0, const.NUM_COLS),
                 'flip':lambda mv: const.NUM_COLS
             }
-        #print(node_list)
+        print(node_list)
         best = [Node(weight[x._item._action](x._item), x._item) for x in node_list]
         return best
 

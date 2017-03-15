@@ -125,3 +125,11 @@ class Simulator(object):
         msg += str(p2) + ': ' + '/'.join(map(str, (results[1], results[0], results[2])))
         msg += '\n'
         print(msg)
+
+    def saveGeneratedDict(self, player):
+        '''
+        Save dictionary object generated during the training in order
+        to be able to use the player without training it again.
+        '''
+        with open('./reinforcement_dict/filename.pickle', 'wb') as handle:
+            pickle.dump(player.Q, handle, protocol=pickle.HIGHEST_PROTOCOL)
