@@ -94,7 +94,7 @@ def promptPlayers(in_pair=None, _learning=True):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
-        p1 = pclass[1](pname[1],pfunc[0],tieChoice=tieChoice_priority_qlearn,\
+        p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
             learning=_learning)
     elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
@@ -198,7 +198,7 @@ def mainQ(_learning=True):
     # Create new simulation
     # Flags:
     #   - debug: (True, False)
-    sim = Simulator(game)
+    sim = Simulator(game, save_file)
 
 
     ######
@@ -207,7 +207,7 @@ def mainQ(_learning=True):
     # - tolerance=0.05 Epsilon tolerance to being testing.
     # - n_test=0  Number of test to be conducted after training
 
-    sim.run(tolerance=0.05,n_test=40)
+    sim.run(tolerance=0.01,n_test=20)
 
 
 if __name__ == "__main__":

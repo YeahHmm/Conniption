@@ -4,14 +4,11 @@ import resource
 import const
 from resource import Move
 
-random.seed(0)
-
-
 
 
 '''
-Extends AI class (which is a child of the Player class) and allows for creation
-of custom AI players.
+Extends player class and allows for creation a custom reinforcement agent
+that uses Qlearn
 Requires an evaluation function and supports choosing a depth limit and
 a tie breaker between moves.
 '''
@@ -48,11 +45,15 @@ class Qlearn(game.Player):
         }
 
     def reset(self, testing=False):
-
+        '''
+        The reset function is called at the beginning of each trial.
+        If 'testing' is true, it means the training trails have been
+        completed and there is no need for more.
+        '''
         self.trial_num += 1
         a = 0.99
-        #self.epsilon = math.cos( a * self.trial_num)
-        self.epsilon = self.epsilon - 0.005
+        self.epsilon = abs(math.cos( a * self.trial_num))
+        #self.epsilon = self.epsilon - 0.010
         if testing == True:
             self.epsilon = 0
             self.alpha = 0
@@ -85,7 +86,6 @@ class Qlearn(game.Player):
         minimizing
         '''
         items = self.Q[state.__hash__()].items()
-        #print ('get_maxQ_items', items)
         maxQ = sorted(items, reverse= state._player == 0)[0][1]
         return maxQ
 
@@ -103,19 +103,25 @@ class Qlearn(game.Player):
         rand_num = random.randint(0, len(moves)-1)
 
         #print (moves)
-        if not self.learning:
-            return moves[rand_num]
-        else:
-            if self.epsilon > random.random():
-                # return a rand move with epsilon probability
-                action = moves[rand_num]
+        # If no more flips are allowed, select none.
+        if len(moves) > 1:
+            if not self.learning:
+                return moves[rand_num]
             else:
-                maxQ = self.get_maxQ(state)
-                max_states = []
-                for key in moves:
-                    if maxQ == self.Q[state.__hash__()][key]:
-                        max_states.append(key)
-                action = random.choice(max_states)
+                if self.epsilon > random.random():
+                    # return a rand move with epsilon probability
+                    action = moves[rand_num]
+                else:
+                    maxQ = self.get_maxQ(state)
+                    #print(maxQ)
+                    #print (self.Q[state.__hash__()])
+                    max_states = []
+                    for key in moves:
+                        if maxQ == self.Q[state.__hash__()][key]:
+                            max_states.append(key)
+                    action = random.choice(max_states)
+        else:
+            action = moves[0]
 
         return action
 
@@ -165,6 +171,7 @@ class MinimaxQlearn(game.AI):
         self.learning = learning
         self.alpha = alpha
         self.epsilon = epsilon
+        self.trial_num = 0
         self.Q = dict()
 
         '''
@@ -174,7 +181,7 @@ class MinimaxQlearn(game.AI):
         flip the board or not
         '''
         self.def_dic_flip = lambda: {
-                                'place': 0.0,
+                                'flip': 0.0,
                                 'none': 0.0
         }
         self.def_dic_place = lambda: {
@@ -188,6 +195,19 @@ class MinimaxQlearn(game.AI):
         }
         super().__init__(name, evalFunc, max_depth=max_depth, \
                 tieChoice=tieChoice)
+
+    def reset(self, testing=False):
+        print('hola')
+        self.trial_num += 1
+        a = 0.99
+        self.epsilon = abs(math.cos( a * self.trial_num))
+        print ('epsilon', self.epsilon)
+        #self.epsilon = self.epsilon - 0.010
+        if testing == True:
+            self.epsilon = 0
+            self.alpha = 0
+        return None
+
 
     '''
     Create dict based on the system state and the stage in which the
@@ -215,45 +235,75 @@ class MinimaxQlearn(game.AI):
     '''
     def get_maxQ(self, state):
         items = self.Q[state.__hash__()].items()
-        maxQ = sorted(items, reverse= state._player == 0)[0]
+        maxQ = sorted(items, reverse= state._player == 0)[0][1]
         return maxQ
 
+
     def choose_action(self, state):
-        moves = list(state.genMoves())
-        mv = super().choose_move(state)
-        print(moves)
         '''
-        if not self.learning:
-            return mv
+        Generate all valid actions from the genMoves
+        algorithm. Then build the moves Dictionary
+        depending on the element being built.
+        '''
+        valid_moves = list(state.genMoves())
+        if state._stage == 0 or state._stage == 2:
+            moves = [x._action for x in valid_moves]
         else:
-            if self.epsilon > random.random():
-                # return a rand move with epsilon probability
-                action = moves[random.randint(0, len(moves)-1)]
+            moves = [x._column for x in valid_moves]
+        rand_num = random.randint(0, len(moves)-1)
+
+        #print (moves)
+        # If no more flips are allowed, select none.
+        if len(moves) > 1:
+            if not self.learning:
+                return moves[rand_num]
             else:
-                maxQ = self.get_maxQ(state)
-                if maxQ > mv._item._item:
+                if self.epsilon > random.random():
+                    # return a rand move with epsilon probability
+                    action = moves[rand_num]
+                else:
+                    maxQ = self.get_maxQ(state)
+                    #print(maxQ)
+                    #print (self.Q[state.__hash__()])
                     max_states = []
-                    for key in self.Q[state.__hash__()]:
+                    for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
                             max_states.append(key)
-                    _action = random.choice(max_states)
-                    if state._stage == 0 or state._state == 2:
-                        action = Move(_action, state._player)
-                    else:
-                        action = Move('place', state._player, _action)
-                else:
-                    action = mv
+                    action = random.choice(max_states)
+        else:
+            action = moves[0]
 
         return action
-        '''
-        return mv
 
+    def learn(self, state, move, action):
+        new_state = state.update(move)
+        moves = super().choose_move(state)
+        reward = [x._value for x in moves if x._item == move][0]
+        print ('reward: ', reward)
+        if self.learning:
+            if state.__hash__() not in self.Q:
+                self.createQ(state)
+            rate = self.alpha
+            print (self.Q[state.__hash__()])
+            old_q = self.Q[state.__hash__()][action]
+            #new_q = old_q + (rate * ((reward)- old_q))
+            new_q = (1 - rate) * old_q + (reward * self.alpha)
+            self.Q[state.__hash__()][action] = new_q
+
+        #print ('learning val: ', old_q, new_q, move)
+        return
 
     def choose_move(self, state):
         self.createQ(state)
         #print (state._stage)
         #print ('Number of states: ', len(self.Q))
         #print (self.Q)
-        mv = self.choose_action(state)
-        print (mv, 'from Qlearn')
-        return mv._item
+        _action = self.choose_action(state)
+        if state._stage == 0 or state._stage == 2:
+            mv = Move(_action, state._player)
+        else:
+            mv = Move('place', state._player, _action)
+
+        self.learn(state, mv, _action)
+        #print (mv, 'from Qlearn')
+        return mv

@@ -19,21 +19,26 @@ Class used by main game loop to handle printing, logging, players,
 and other functions with SystemState as a backend.
 '''
 class Game:
-    def __init__(self, player_pair):
+    def __init__(self, player_pair, save_file="save.pkl"):
         self._state = SystemState()
         self._player_pair = player_pair
         self._history = []
         self._winner = None
         self._gameEnd = False
+        self._save_file = save_file
 
     '''
     Reset function used for reinforcement learning
     Updates epsilon value
     '''
     def reset(self, testing=False):
+        self._player_pair[0].reset(testing=testing)
+        self._player_pair[1].reset(testing=testing)
+        self.save(self._save_file)
         self._state = SystemState()
-        #self._player_pair[0].reset(testing=testing)
-        #self._player_pair[1].reset(testing=testing)
+        self._history = []
+        self._winner = None
+        self._gameEnd = False
 
     def getState(self):
         return self._state

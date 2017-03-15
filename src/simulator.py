@@ -2,28 +2,34 @@ import os
 import time
 import const
 
+'''
+Simulator class that manage the needed loop to make a
+Qlearn agent to train as long as the epsilon decay
+is bigger than the tolerance
+'''
 class Simulator(object):
 
     # Set up environment variables
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    def __init__(self, game, debug=False):
+    def __init__(self, game,debug=False):
         self._game = game
         const.DEBUG = debug
+        # stats dict records the w/l of each player
         self.stats = {}
         self.stats['results'] = [0,0,0]
 
-    """
-    Run a simulation of the environment.
-
-    'tolerance' is the minimum epsilon necessary to begin testing (if enabled)
-    'n_test' is the number of testing trials simulated
-
-    Note that the minimum number of training trials is always 20.
-    """
 
     def run(self, tolerance=0.05, n_test=0):
+        """
+        Run a simulation of the environment.
+
+        'tolerance' is the minimum epsilon necessary to begin testing (if enabled)
+        'n_test' is the number of testing trials simulated
+
+        Note that the minimum number of training trials is always 20.
+        """
         a =  self.getQlearnAgent(self._game)
         total_trials = 1
         testing = False
@@ -46,7 +52,7 @@ class Simulator(object):
                 if trial > n_test:
                     break
             while not self._game.checkWin():
-                #self._game.drawScreen()
+                self._game.drawScreen()
                 mv = self._game.getCurPlayer().choose_move(self._game.getState())
                 self._game.update(mv)
             # Prompt for replay
@@ -58,7 +64,7 @@ class Simulator(object):
                 self.stats['results'][self._game._player_pair.index(self._game._winner)] += 1
             print (msg)
             self._game.reset(testing=testing)
-            a.reset(testing=testing)
+            #a.reset(testing=testing)
 
             print ("/-------------------------")
             if testing:
@@ -72,13 +78,25 @@ class Simulator(object):
 
             total_trials = total_trials + 1
             trial = trial + 1
+        print (len(a.Q))
 
 
     def getQlearnAgent(self, game):
+        '''
+        Returns the agent that has a QLEARN agent declared
+        Exits the simulation in the case none of them is
+        declared as such
+        '''
         if game._player_pair[0]._name == 'QLEARN1':
             a = game._player_pair[0]
             return a
         elif game._player_pair[1]._name == 'QLEARN2':
+            a = game._player_pair[1]
+            return a
+        elif game._player_pair[0]._name == 'MINIMAXQLEARN1':
+            a = game._player_pair[0]
+            return a
+        elif game._player_pair[1]._name == 'MINIMAXQLEARN2':
             a = game._player_pair[1]
             return a
         else:
@@ -86,6 +104,9 @@ class Simulator(object):
             os.sys.exit()
 
     def printResults(self):
+        '''
+        Print the results out of the game from the stats class
+        '''
         p1 = self._game._player_pair[0]
         p2 = self._game._player_pair[1]
         results = self.stats['results']
