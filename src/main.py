@@ -207,7 +207,7 @@ def mainQ(_learning=True):
     # - tolerance=0.05 Epsilon tolerance to being testing.
     # - n_test=0  Number of test to be conducted after training
 
-    sim.run(tolerance=0.01,n_test=20)
+    sim.run(tolerance=0.001,n_test=20)
 
 
 if __name__ == "__main__":
