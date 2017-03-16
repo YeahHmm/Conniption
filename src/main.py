@@ -38,13 +38,13 @@ def test():
 # Prompt for player types and names
 def promptPlayers(in_pair=None, _learning=True):
     ptype = [None, None]
-    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQLEARN']
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ']
     if in_pair != None:
         ptype = list(in_pair)
     else:
         prompt_string = "Enter Player 1 type: \n\t[1: Human], \n\t[2: Sols]," \
                         + "\n\t[3: Cells],\n\t[4: Hybrid],\n\t[5: Flip]," \
-                        + "\n\t[6: Random] \n\t[7: QLearn]\n\t[8: MinimaxQlearn]\nChoose: "
+                        + "\n\t[6: Random] \n\t[7: QLearn]\n\t[8: MinimaxQ]\nChoose: "
         ptype[0] = input(prompt_string)
         ptype[1] = input(prompt_string)
 
@@ -63,7 +63,7 @@ def promptPlayers(in_pair=None, _learning=True):
         elif ptype[i] == "QLEARN" or ptype[i] == "7":
             pfunc[i] = flip_bias_hybrid
             pclass[i] = Qlearn
-        elif ptype[i] == "MINIMAXQLEARN" or ptype[i] == "8":
+        elif ptype[i] == "MINIMAXQ" or ptype[i] == "8":
             pfunc[i] = flip_bias_hybrid
             pclass[i] = MinimaxQlearn
         elif ptype[i] == "FLIP" or ptype[i] == "5":
@@ -207,7 +207,7 @@ def mainQ(_learning=True):
     # - tolerance=0.05 Epsilon tolerance to being testing.
     # - n_test=0  Number of test to be conducted after training
 
-    sim.run(tolerance=0.01,n_test=20)
+    sim.run(tolerance=0.5,n_test=20)
 
 
 if __name__ == "__main__":

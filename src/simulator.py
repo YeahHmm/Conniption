@@ -1,6 +1,7 @@
 import os
 import time
 import const
+import pickle
 
 '''
 Simulator class that manage the needed loop to make a
@@ -79,6 +80,7 @@ class Simulator(object):
             total_trials = total_trials + 1
             trial = trial + 1
         print (len(a.Q))
+        self.saveGeneratedDict(a)
 
 
     def getQlearnAgent(self, game):
@@ -93,10 +95,10 @@ class Simulator(object):
         elif game._player_pair[1]._name == 'QLEARN2':
             a = game._player_pair[1]
             return a
-        elif game._player_pair[0]._name == 'MINIMAXQLEARN1':
+        elif game._player_pair[0]._name == 'MINIMAXQ1':
             a = game._player_pair[0]
             return a
-        elif game._player_pair[1]._name == 'MINIMAXQLEARN2':
+        elif game._player_pair[1]._name == 'MINIMAXQ2':
             a = game._player_pair[1]
             return a
         else:

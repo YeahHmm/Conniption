@@ -44,14 +44,17 @@ of flipping
 def tieChoice_priority_qlearn(node_list, get_max):
         # Sort based on minimizing or maximizing
         node_list.sort(reverse=not get_max)
+        '''
+        print ('before: ', node_list)
         # Functions to assign weights to Move objects. Lower is preferred.
         weight = {'none': lambda mv: -1,
                 'place': lambda mv: random.randint(0, const.NUM_COLS),
                 'flip':lambda mv: const.NUM_COLS
             }
-        print(node_list)
         best = [Node(weight[x._item._action](x._item), x._item) for x in node_list]
-        return best
+        '''
+        #print('after: ', node_list)
+        return node_list
 
 '''
 Uses const.SOLS_GRAPH to perform calculation. A player's score is based on

@@ -85,8 +85,8 @@ class Qlearn(game.Player):
         This is due to player one maximizing while player two
         minimizing
         '''
-        items = self.Q[state.__hash__()].items()
-        maxQ = sorted(items, reverse= state._player == 0)[0][1]
+        items = self.Q[state.__hash__()].values()
+        maxQ = sorted(items, reverse= state._player == 0)[0]
         return maxQ
 
     def choose_action(self, state):
@@ -238,8 +238,9 @@ class MinimaxQlearn(game.AI):
     minimizing
     '''
     def get_maxQ(self, state):
-        items = self.Q[state.__hash__()].items()
-        maxQ = sorted(items, reverse= state._player == 0)[0][1]
+        items = self.Q[state.__hash__()].values()
+        maxQ = sorted(items, reverse= state._player == 0)[0]
+        print (items, maxQ, state._player)
         return maxQ
 
 
@@ -255,6 +256,7 @@ class MinimaxQlearn(game.AI):
         else:
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
+        print ('Moves:', moves, 'r', rand_num)
 
         #print (moves)
         # If no more flips are allowed, select none.
@@ -273,6 +275,7 @@ class MinimaxQlearn(game.AI):
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
                             max_states.append(key)
+                    print ('Max_states:', max_states)
                     action = random.choice(max_states)
         else:
             action = moves[0]
@@ -282,17 +285,20 @@ class MinimaxQlearn(game.AI):
     def learn(self, state, move, action):
         new_state = state.update(move)
         moves = super().choose_move(state)
-        reward = [x._value for x in moves if x._item == move][0]
+        print ('Selected mov: ', move)
+        reward = [x._value for x in moves if x._item == move]
+        print (reward)
+        reward = reward[0]
         print ('reward: ', reward)
         if self.learning:
             if state.__hash__() not in self.Q:
                 self.createQ(state)
             rate = self.alpha
-            print (self.Q[state.__hash__()])
             old_q = self.Q[state.__hash__()][action]
             #new_q = old_q + (rate * ((reward)- old_q))
             new_q = (1 - rate) * old_q + (reward * self.alpha)
             self.Q[state.__hash__()][action] = new_q
+            print (self.Q[state.__hash__()])
 
         #print ('learning val: ', old_q, new_q, move)
         return
