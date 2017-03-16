@@ -4,6 +4,7 @@ import os
 import pickle
 import random
 import sys
+from copy import deepcopy
 
 from termcolor import colored
 from getch import _Getch
@@ -34,7 +35,7 @@ class Game:
     def reset(self, testing=False):
         self._player_pair[0].reset(testing=testing)
         self._player_pair[1].reset(testing=testing)
-        self.save(self._save_file)
+        #self.save(self._save_file)
         self._state = SystemState()
         self._history = []
         self._winner = None
@@ -243,16 +244,42 @@ class AI(Player):
         new_choice = cmod ^ get_max
         new_depth = new_choice != get_max
 
-        # Get list of Nodes with Move objects as items and evaluation
-        # scores as values
-        children = []
-        for mv in mv_list:
-            new_state = base_state.update(mv)
-            tup = new_state.getBoardTuple()
-            mv_val = self._minimax_help(new_state, new_depth, \
-                    new_choice, get_max)
+        ######
+        # The following code uses dynamic programing to speed-up
+        # the minimx search.
+        # The key is the board, the num_flips and the stage
+        # player is not considered since it is not posible to
+        # have the same states as p1 and p2 since number of
+        # chips placed is always different odd/even
 
-            children.append(Node(mv_val, mv))
+        import time
+
+        start = time.time()
+
+
+        _state = hash((base_state.getBoardTuple(), base_state._num_flips, base_state._stage))
+
+        if _state not in const.DYNAMIC_MINIMAX:
+            # Get list of Nodes with Move objects as items and evaluation
+            # scores as values
+            children = []
+            for mv in mv_list:
+                new_state = base_state.update(mv)
+                tup = new_state.getBoardTuple()
+                mv_val = self._minimax_help(new_state, new_depth, \
+                        new_choice, get_max)
+
+                children.append(Node(mv_val, mv))
+            # save into dynamic dictionary
+            const.DYNAMIC_MINIMAX[_state] = deepcopy(children)
+
+        else:
+            print ('That was fast')
+            children = deepcopy(const.DYNAMIC_MINIMAX[_state])
+            print (children)
+
+        end = time.time()
+        print (end - start)
 
         # Sort the options and choose the best using the provided tie breaker
         # if one was provided. Otherwise use the built-in choice function.

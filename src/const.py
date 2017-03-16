@@ -18,4 +18,4 @@ CELL_MAP = {}       # Dictionary mapping cells to sets of solutions
 NUM_LOOK = 3        # Default number of pairs of plies to look ahead
 DEBUG = False       # Debug mode
 
-MINIMAX = {}
+DYNAMIC_MINIMAX = {}
