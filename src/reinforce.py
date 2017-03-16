@@ -99,6 +99,7 @@ class Qlearn(game.Player):
         if state._stage == 0 or state._stage == 2:
             moves = [x._action for x in valid_moves]
         else:
+            valid_moves = sorted(valid_moves, key= lambda x: x._column)
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
 
@@ -254,6 +255,7 @@ class MinimaxQlearn(game.AI):
         if state._stage == 0 or state._stage == 2:
             moves = [x._action for x in valid_moves]
         else:
+            valid_moves = sorted(valid_moves, key= lambda x: x._column)
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
         print ('Moves:', moves, 'r', rand_num)

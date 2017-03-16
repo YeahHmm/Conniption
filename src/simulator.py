@@ -80,7 +80,8 @@ class Simulator(object):
             total_trials = total_trials + 1
             trial = trial + 1
         print (len(a.Q))
-        self.saveGeneratedDict(a)
+        print ('Training size: ', total_trials - trial)
+        #self.saveGeneratedDict(a)
 
 
     def getQlearnAgent(self, game):
