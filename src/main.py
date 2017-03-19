@@ -85,7 +85,7 @@ def promptPlayers(in_pair=None, _learning=True):
             learning=_learning)
     elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning)
+            learning=_learning, alpha=0.4)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -207,7 +207,7 @@ def mainQ(_learning=True):
     # - tolerance=0.05 Epsilon tolerance to being testing.
     # - n_test=0  Number of test to be conducted after training
 
-    sim.run(tolerance=0.001,n_test=20)
+    sim.run(tolerance=0.001,n_test=100)
 
 
 if __name__ == "__main__":

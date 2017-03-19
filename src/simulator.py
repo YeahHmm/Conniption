@@ -42,7 +42,7 @@ class Simulator(object):
             if not testing:
                 if total_trials > 20:
                     if a.learning:
-                        if a.epsilon < tolerance:
+                        if a.epsilon < tolerance or total_trials > 5000:
                             testing = True
                             trial = 1
                             self.stats['results'] = [0,0,0]
@@ -64,6 +64,7 @@ class Simulator(object):
                 msg = str(self._game._winner) + " wins!"
                 self.stats['results'][self._game._player_pair.index(self._game._winner)] += 1
             print (msg)
+            self._game.drawScreen()
             self._game.reset(testing=testing)
             #a.reset(testing=testing)
 
@@ -76,6 +77,7 @@ class Simulator(object):
 
             print ("\-------------------------")
             self.printResults()
+
 
             total_trials = total_trials + 1
             trial = trial + 1

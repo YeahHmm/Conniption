@@ -51,7 +51,7 @@ class Qlearn(game.Player):
         completed and there is no need for more.
         '''
         self.trial_num += 1
-        a = 0.99
+        a = 0.1
         self.epsilon = abs(math.cos( a * self.trial_num))
         #self.epsilon = self.epsilon - 0.010
         if testing == True:
@@ -204,9 +204,8 @@ class MinimaxQlearn(game.AI):
     '''
     def reset(self, testing=False):
         self.trial_num += 1
-        a = 0.99
+        a = 0.98
         self.epsilon = abs(math.cos( a * self.trial_num))
-        print ('epsilon', self.epsilon)
         #self.epsilon = self.epsilon - 0.010
         if testing == True:
             self.epsilon = 0
@@ -241,7 +240,7 @@ class MinimaxQlearn(game.AI):
     def get_maxQ(self, state):
         items = self.Q[state.__hash__()].values()
         maxQ = sorted(items, reverse= state._player == 0)[0]
-        print (items, maxQ, state._player)
+        #print (items, maxQ, state._player)
         return maxQ
 
 
@@ -258,7 +257,7 @@ class MinimaxQlearn(game.AI):
             valid_moves = sorted(valid_moves, key= lambda x: x._column)
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
-        print ('Moves:', moves, 'r', rand_num)
+        #print ('Moves:', moves, 'r', rand_num)
 
         #print (moves)
         # If no more flips are allowed, select none.
@@ -277,7 +276,7 @@ class MinimaxQlearn(game.AI):
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
                             max_states.append(key)
-                    print ('Max_states:', max_states)
+                    #print ('Max_states:', max_states)
                     action = random.choice(max_states)
         else:
             action = moves[0]
