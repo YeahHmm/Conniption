@@ -76,6 +76,14 @@ class Qlearn(game.Player):
                 self.Q[state.__hash__()] = self.def_dic_flip()
             else:
                 self.Q[state.__hash__()] = self.def_dic_place()
+        '''
+        If the player is looking to minimize, find the smalled number,
+        set the default value to a normer bigger than the biggest
+        posible value in the maximize version
+        '''
+        if state._player == 1:
+            for key in self.Q[state.__hash__()]:
+                self.Q[state.__hash__()][key] = 100000
 
     def get_maxQ(self, state):
         '''
@@ -103,9 +111,12 @@ class Qlearn(game.Player):
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
 
-        #print (moves)
+        print (moves)
+        print ('state: \n', state)
         # If no more flips are allowed, select none.
-        if len(moves) > 1:
+        # If previous move was not a flip
+        # No consecutive flips allowed
+        if len(moves) > 1 and state._prev_move._action != 'flip':
             if not self.learning:
                 return moves[rand_num]
             else:
@@ -114,8 +125,8 @@ class Qlearn(game.Player):
                     action = moves[rand_num]
                 else:
                     maxQ = self.get_maxQ(state)
-                    #print(maxQ)
-                    #print (self.Q[state.__hash__()])
+                    print('maxQ: ', maxQ)
+                    print ('hash: ', self.Q[state.__hash__()])
                     max_states = []
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
@@ -130,6 +141,8 @@ class Qlearn(game.Player):
     def learn(self, state, move, action):
         new_state = state.update(move)
         reward = self.evalFunc(new_state)
+        if action == 'none':
+            reward *= 4
         if self.learning:
             if state.__hash__() not in self.Q:
                 self.createQ(state)
@@ -157,6 +170,7 @@ class Qlearn(game.Player):
         self.learn(state, mv, _action)
         #print (mv, 'from Qlearn')
         return mv
+
 
 '''
 Extends AI class (which is a child of the Player class) and allows for creation
@@ -230,6 +244,16 @@ class MinimaxQlearn(game.AI):
             else:
                 self.Q[state.__hash__()] = self.def_dic_place()
 
+        '''
+        If the player is looking to minimize, find the smalled number,
+        set the default value to a normer bigger than the biggest
+        posible value in the maximize version
+        '''
+
+        if state._player == 1:
+            for key in self.Q[state.__hash__()]:
+                self.Q[state.__hash__()][key] = 100000
+
     '''
     Returns Q-value based on the player that is requested,
     player one it returns the biggest positive number,
@@ -259,9 +283,11 @@ class MinimaxQlearn(game.AI):
         rand_num = random.randint(0, len(moves)-1)
         #print ('Moves:', moves, 'r', rand_num)
 
-        #print (moves)
+        print ('Moves: ', moves)
         # If no more flips are allowed, select none.
-        if len(moves) > 1:
+        # If previous move was not a flip
+        # No consecutive flips allowed
+        if len(moves) > 1 and state._prev_move._action != 'flip':
             if not self.learning:
                 return moves[rand_num]
             else:
@@ -270,8 +296,8 @@ class MinimaxQlearn(game.AI):
                     action = moves[rand_num]
                 else:
                     maxQ = self.get_maxQ(state)
-                    #print(maxQ)
-                    #print (self.Q[state.__hash__()])
+                    print(maxQ)
+                    print (self.Q[state.__hash__()])
                     max_states = []
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:

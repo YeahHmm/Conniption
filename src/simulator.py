@@ -42,7 +42,8 @@ class Simulator(object):
             if not testing:
                 if total_trials > 20:
                     if a.learning:
-                        if a.epsilon < tolerance or total_trials > 5000:
+                        #if a.epsilon < tolerance or total_trials > 5000:
+                        if total_trials > 3000:
                             testing = True
                             trial = 1
                             self.stats['results'] = [0,0,0]
@@ -53,7 +54,8 @@ class Simulator(object):
                 if trial > n_test:
                     break
             while not self._game.checkWin():
-                self._game.drawScreen()
+                if testing:
+                    self._game.drawScreen()
                 mv = self._game.getCurPlayer().choose_move(self._game.getState())
                 self._game.update(mv)
             # Prompt for replay

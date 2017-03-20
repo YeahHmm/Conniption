@@ -82,7 +82,7 @@ def promptPlayers(in_pair=None, _learning=True):
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning)
+            learning=_learning, alpha=0.4)
     elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
             learning=_learning, alpha=0.4)
@@ -95,10 +95,10 @@ def promptPlayers(in_pair=None, _learning=True):
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
-            learning=_learning)
+            learning=_learning, alpha=0.4)
     elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning)
+            learning=_learning, alpha=0.4)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
