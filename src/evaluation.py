@@ -47,7 +47,7 @@ def tieChoice_priority_qlearn(node_list, get_max):
 
         print ('before: ', node_list)
         # Functions to assign weights to Move objects. Lower is preferred.
-        weight = {'none': lambda mv: 4,
+        weight = {'none': lambda mv: 2,
                 'place': lambda mv: 1,
                 'flip':lambda mv: 1
             }

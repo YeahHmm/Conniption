@@ -42,8 +42,8 @@ class Simulator(object):
             if not testing:
                 if total_trials > 20:
                     if a.learning:
-                        #if a.epsilon < tolerance or total_trials > 5000:
-                        if total_trials > 3000:
+                        if a.epsilon < tolerance:
+                        #if total_trials > 3000:
                             testing = True
                             trial = 1
                             self.stats['results'] = [0,0,0]
@@ -85,7 +85,7 @@ class Simulator(object):
             trial = trial + 1
         print (len(a.Q))
         print ('Training size: ', total_trials - trial)
-        #self.saveGeneratedDict(a)
+        self.saveGeneratedDict(a)
 
 
     def getQlearnAgent(self, game):
@@ -138,5 +138,6 @@ class Simulator(object):
         Save dictionary object generated during the training in order
         to be able to use the player without training it again.
         '''
-        with open('./reinforcement_dict/filename.pickle', 'wb') as handle:
+        save_dir = './reinforcement_dict/' + player._name + '.pickle'
+        with open(save_dir, 'wb') as handle:
             pickle.dump(player.Q, handle, protocol=pickle.HIGHEST_PROTOCOL)

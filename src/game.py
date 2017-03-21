@@ -252,10 +252,6 @@ class AI(Player):
         # have the same states as p1 and p2 since number of
         # chips placed is always different odd/even
 
-        #import time
-
-        #start = time.time()
-
 
         _state = hash((base_state.getBoardTuple(), base_state._num_flips, base_state._stage))
 
@@ -277,8 +273,6 @@ class AI(Player):
             #print ('That was fast')
             children = deepcopy(const.DYNAMIC_MINIMAX[_state])
 
-        #end = time.time()
-        #print (end - start)
 
         # Sort the options and choose the best using the provided tie breaker
         # if one was provided. Otherwise use the built-in choice function.
