@@ -258,6 +258,7 @@ class AI(Player):
         if _state not in const.DYNAMIC_MINIMAX:
             # Get list of Nodes with Move objects as items and evaluation
             # scores as values
+            print ('Moves from minimax:, ', mv_list)
             children = []
             for mv in mv_list:
                 new_state = base_state.update(mv)

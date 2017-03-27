@@ -51,7 +51,7 @@ class Qlearn(game.Player):
         completed and there is no need for more.
         '''
         self.trial_num += 1
-        a = 0.001
+        a = 0.003
         self.epsilon = math.exp(1)**(-a*self.trial_num)
         #self.epsilon = self.epsilon - 0.010
         if testing == True:
@@ -106,15 +106,17 @@ class Qlearn(game.Player):
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
 
+        print ('Moves: ', moves)
         # If no more flips are allowed, select none.
         # If previous move was not a flip
         # No consecutive flips allowed
-        if len(moves) > 1 and state._prev_move._action != 'flip':
+        if len(moves) > 1:
             if not self.learning:
                 return moves[rand_num]
             else:
                 if self.epsilon > random.random():
                     # return a rand move with epsilon probability
+                    print (self.epsilon, '--Choose by rand')
                     action = moves[rand_num]
                 else:
                     # Get sorted list of states
@@ -142,8 +144,20 @@ class Qlearn(game.Player):
     def learn(self, state, move, action):
         new_state = state.update(move)
         reward = self.evalFunc(new_state)
+        print ('Selected move: ', move)
+        print ('reward before: ', reward)
         if action == 'none':
-            reward *= 2
+            if state._player == 0:
+                if reward > 0:
+                    reward *= 1.5
+                else:
+                    reward /= 1.5
+            else:
+                if reward < 0:
+                    reward *= 1.5
+                else:
+                    reward /= 1.5
+        print ('reward: ', reward)
         if self.learning:
             if state.__hash__() not in self.Q:
                 self.createQ(state)
@@ -153,6 +167,7 @@ class Qlearn(game.Player):
             #new_q = old_q + (rate * ((reward)- old_q))
             new_q = (1 - rate) * old_q + (reward * self.alpha)
             self.Q[state.__hash__()][action] = new_q
+            print (self.Q[state.__hash__()])
 
         #print ('learning val: ', old_q, new_q, move)
         return
@@ -219,7 +234,7 @@ class MinimaxQlearn(game.AI):
     '''
     def reset(self, testing=False):
         self.trial_num += 1
-        a = 0.001
+        a = 0.003
         #self.epsilon = abs(math.cos( a * self.trial_num))
         #self.epsilon = self.epsilon - 0.0005
         self.epsilon = math.exp(1)**(-a*self.trial_num)
@@ -280,7 +295,7 @@ class MinimaxQlearn(game.AI):
         # If no more flips are allowed, select none.
         # If previous move was not a flip
         # No consecutive flips allowed
-        if len(moves) > 1 and state._prev_move._action != 'flip':
+        if len(moves) > 1:
             if not self.learning:
                 return moves[rand_num]
             else:
@@ -310,7 +325,7 @@ class MinimaxQlearn(game.AI):
         return action
 
     def learn(self, state, move, action):
-        new_state = state.update(move)
+        #new_state = state.update(move)
         moves = super().choose_move(state)
         print ('Selected mov: ', move)
         reward = [x._value for x in moves if x._item == move]

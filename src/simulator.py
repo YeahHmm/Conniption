@@ -73,6 +73,7 @@ class Simulator(object):
             print ("/-------------------------")
             if testing:
                 print ("| Testing trial {}".format(trial))
+                print ('Epsilon: ', a.epsilon)
             else:
                 print ("| Training trial {}".format(trial))
                 print ('Epsilon: ', a.epsilon)
