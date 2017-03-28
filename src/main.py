@@ -36,7 +36,7 @@ def test():
         print(game.checkWin())
 
 # Prompt for player types and names
-def promptPlayers(in_pair=None, _learning=True):
+def promptPlayers(in_pair=None, _learning=True, savedState=False):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ']
     if in_pair != None:
@@ -82,10 +82,10 @@ def promptPlayers(in_pair=None, _learning=True):
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.4)
+            learning=_learning, alpha=0.4, savedState=savedState)
     elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.4)
+            learning=_learning, alpha=0.4, savedState=savedState)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -95,10 +95,10 @@ def promptPlayers(in_pair=None, _learning=True):
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
-            learning=_learning, alpha=0.4)
+            learning=_learning, alpha=0.4, savedState=savedState)
     elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.5)
+            learning=_learning, alpha=0.4, savedState=savedState)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
@@ -137,13 +137,13 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = False
+    const.DEBUG = True
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
     num_games = 100
 
-    player_pair = promptPlayers(pair)
+    player_pair = promptPlayers(pair, _learning=False, savedState=True)
     play_again =  False
 
     stats = {}
@@ -161,8 +161,7 @@ def main():
             mv = game.getCurPlayer().choose_move(game.getState())
             #print (mv.__hash__())
             game.update(mv)
-        if game.getCurPlayer()._name == 'QLEARN1':
-            print (game.getCurPlayer().Q)
+
         # Log moves and results with pickle
         game.save(save_file)
 
@@ -174,7 +173,7 @@ def main():
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
 
-    play_again = promptContinue(stats, msg)
+    #play_again = promptContinue(stats, msg)
     print (stats)
 
 
@@ -213,4 +212,5 @@ def mainQ(_learning=True):
 
 if __name__ == "__main__":
     #test()
-    mainQ()
+    #mainQ()
+    main()

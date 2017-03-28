@@ -3,6 +3,7 @@ import random
 import resource
 import const
 from resource import Move
+import pickle
 
 
 
@@ -15,13 +16,20 @@ a tie breaker between moves.
 
 class Qlearn(game.Player):
 
-    def __init__(self, name, evalFunc, tieChoice=None, learning=False, epsilon=1.0, alpha=0.5):
+    def __init__(self, name, evalFunc, tieChoice=None, learning=False, epsilon=1.0, alpha=0.5, savedState=False):
         self.evalFunc = evalFunc
         self.learning = learning
         self.alpha = alpha
         self.epsilon = epsilon
         self.trial_num = 0
-        self.Q = dict()
+        if savedState:
+            _file = './reinforcement_dict/' + name + '.pickle'
+            self.Q = pickle.load(open(_file, 'rb'))
+            self.epsilon = 0
+            self.alpha = 0
+            print ('loaded')
+        else:
+            self.Q = dict()
         super().__init__(name)
 
         '''
@@ -111,30 +119,27 @@ class Qlearn(game.Player):
         # If previous move was not a flip
         # No consecutive flips allowed
         if len(moves) > 1:
-            if not self.learning:
-                return moves[rand_num]
+            if self.epsilon > random.random():
+                # return a rand move with epsilon probability
+                print (self.epsilon, '--Choose by rand')
+                action = moves[rand_num]
             else:
-                if self.epsilon > random.random():
-                    # return a rand move with epsilon probability
-                    print (self.epsilon, '--Choose by rand')
-                    action = moves[rand_num]
-                else:
-                    # Get sorted list of states
-                    # Make sure the element select from Qlist
-                    # is a valid element.
-                    # If it is bestQ, but not valid (due to not being a possible
-                    # move) check the next best Q value
-                    max_states = []
-                    maxQList = self.get_maxQ(state)
-                    for maxQ in maxQList:
-                        print('maxQ: ', maxQ)
-                        print ('hash: ', self.Q[state.__hash__()])
-                        for key in moves:
-                            if maxQ == self.Q[state.__hash__()][key]:
-                                max_states.append(key)
-                        if max_states:
-                            action = random.choice(max_states)
-                            return action
+                # Get sorted list of states
+                # Make sure the element select from Qlist
+                # is a valid element.
+                # If it is bestQ, but not valid (due to not being a possible
+                # move) check the next best Q value
+                max_states = []
+                maxQList = self.get_maxQ(state)
+                for maxQ in maxQList:
+                    print('maxQ: ', maxQ)
+                    print ('hash: ', self.Q[state.__hash__()])
+                    for key in moves:
+                        if maxQ == self.Q[state.__hash__()][key]:
+                            max_states.append(key)
+                    if max_states:
+                        action = random.choice(max_states)
+                        return action
         else:
             action = moves[0]
 
@@ -142,23 +147,24 @@ class Qlearn(game.Player):
 
 
     def learn(self, state, move, action):
-        new_state = state.update(move)
-        reward = self.evalFunc(new_state)
-        print ('Selected move: ', move)
-        print ('reward before: ', reward)
-        if action == 'none':
-            if state._player == 0:
-                if reward > 0:
-                    reward *= 1.5
-                else:
-                    reward /= 1.5
-            else:
-                if reward < 0:
-                    reward *= 1.5
-                else:
-                    reward /= 1.5
-        print ('reward: ', reward)
         if self.learning:
+            new_state = state.update(move)
+            reward = self.evalFunc(new_state)
+            print ('Selected move: ', move)
+            print ('reward before: ', reward)
+            if action == 'none':
+                if state._player == 0:
+                    if reward > 0:
+                        reward *= 1.5
+                    else:
+                        reward /= 1.5
+                else:
+                    if reward < 0:
+                        reward *= 1.5
+                    else:
+                        reward /= 1.5
+            print ('reward: ', reward)
+
             if state.__hash__() not in self.Q:
                 self.createQ(state)
             rate = self.alpha
@@ -198,12 +204,20 @@ a tie breaker between moves.
 class MinimaxQlearn(game.AI):
 
     def __init__(self, name, evalFunc, max_depth=1, tieChoice=None, \
-        learning = False, epsilon=1.0, alpha=0.5):
+        learning = False, epsilon=1.0, alpha=0.5, savedState=False):
         self.learning = learning
         self.alpha = alpha
         self.epsilon = epsilon
         self.trial_num = 0
-        self.Q = dict()
+        if savedState:
+            _file = './reinforcement_dict/' + name + '.pickle'
+            self.Q = pickle.load(open(_file, 'rb'))
+            self.epsilon = 0
+            self.alpha = 0
+            print ('Loaded')
+        else:
+            self.Q = dict()
+
 
         '''
         Based on the game selection stages: (flip or none, place, flip or none)
@@ -234,7 +248,7 @@ class MinimaxQlearn(game.AI):
     '''
     def reset(self, testing=False):
         self.trial_num += 1
-        a = 0.003
+        a = 0.005
         #self.epsilon = abs(math.cos( a * self.trial_num))
         #self.epsilon = self.epsilon - 0.0005
         self.epsilon = math.exp(1)**(-a*self.trial_num)
@@ -296,43 +310,40 @@ class MinimaxQlearn(game.AI):
         # If previous move was not a flip
         # No consecutive flips allowed
         if len(moves) > 1:
-            if not self.learning:
-                return moves[rand_num]
+            if self.epsilon > random.random():
+                # return a rand move with epsilon probability
+                action = moves[rand_num]
             else:
-                if self.epsilon > random.random():
-                    # return a rand move with epsilon probability
-                    action = moves[rand_num]
-                else:
-                    # Get sorted list of bestQ values.
-                    # Make sure the element select from Qlist
-                    # is a valid element.
-                    # If it is bestQ, but not valid max_states list will be empty
-                    # (due to not being a possible move) check the next best Q value
-                    max_states = []
-                    maxQList = self.get_maxQ(state)
-                    for maxQ in maxQList:
-                        print('maxQ: ', maxQ)
-                        print ('hash: ', self.Q[state.__hash__()])
-                        for key in moves:
-                            if maxQ == self.Q[state.__hash__()][key]:
-                                max_states.append(key)
-                        if max_states:
-                            action = random.choice(max_states)
-                            return action
+                # Get sorted list of bestQ values.
+                # Make sure the element select from Qlist
+                # is a valid element.
+                # If it is bestQ, but not valid max_states list will be empty
+                # (due to not being a possible move) check the next best Q value
+                max_states = []
+                maxQList = self.get_maxQ(state)
+                for maxQ in maxQList:
+                    print('maxQ: ', maxQ)
+                    print ('hash: ', self.Q[state.__hash__()])
+                    for key in moves:
+                        if maxQ == self.Q[state.__hash__()][key]:
+                            max_states.append(key)
+                    if max_states:
+                        action = random.choice(max_states)
+                        return action
         else:
             action = moves[0]
 
         return action
 
     def learn(self, state, move, action):
-        #new_state = state.update(move)
-        moves = super().choose_move(state)
-        print ('Selected mov: ', move)
-        reward = [x._value for x in moves if x._item == move]
-        print (reward)
-        reward = reward[0]
-        print ('reward: ', reward)
         if self.learning:
+            moves = super().choose_move(state)
+            print ('Selected mov: ', move)
+            reward = [x._value for x in moves if x._item == move]
+            print (reward)
+            reward = reward[0]
+            print ('reward: ', reward)
+
             if state.__hash__() not in self.Q:
                 self.createQ(state)
             rate = self.alpha
