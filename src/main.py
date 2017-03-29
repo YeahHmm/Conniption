@@ -8,6 +8,7 @@ from printing import prompt
 from resource import Move
 from reinforce import Qlearn, MinimaxQlearn
 from simulator import Simulator
+import const
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -83,10 +84,10 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.4, savedState=savedState)
+            learning=_learning, alpha=0.45, savedState=savedState)
     elif pclass[0] == MinimaxQlearn:
         p1 = pclass[0](pname[0], pfunc[0], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.4, savedState=savedState)
+            learning=_learning, alpha=0.45, savedState=savedState)
     elif pfunc[0] == random_move:
         p1 = pclass[0](pname[0], pfunc[0], 1, tieChoice=tieChoice_priority)
     else:
@@ -96,15 +97,16 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
         p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
-            learning=_learning, alpha=0.4, savedState=savedState)
+            learning=_learning, alpha=0.45, savedState=savedState)
     elif pclass[1] == MinimaxQlearn:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority_qlearn, \
-            learning=_learning, alpha=0.4, savedState=savedState)
+            learning=_learning, alpha=0.45, savedState=savedState)
     elif pfunc[1] == random_move:
         p2 = pclass[1](pname[1], pfunc[1], 1, tieChoice=tieChoice_priority)
     else:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
+    const.GAME_NAME = pname[0] + pname[1]
     return (p1, p2)
 
 # Ask if supervisor wants to run another game
@@ -132,7 +134,7 @@ def main():
     # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
         pair = (sys.argv[1], sys.argv[2])
-        save_file = sys.argv[3]
+        save_file = '../log_reinforce/'sys.argv[3]
     else:
         pair = None
         save_file = "save.pkl"
@@ -178,7 +180,7 @@ def main():
     print (stats)
 
 
-# Primary game loop for Q_learn
+# Primary game loop for training Q_learn
 def mainQ(_learning=True):
     # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
@@ -213,5 +215,5 @@ def mainQ(_learning=True):
 
 if __name__ == "__main__":
     #test()
-    #mainQ()
-    main()
+    mainQ()
+    #main()

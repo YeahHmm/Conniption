@@ -19,3 +19,4 @@ NUM_LOOK = 3        # Default number of pairs of plies to look ahead
 DEBUG = False       # Debug mode
 
 DYNAMIC_MINIMAX = {}
+GAME_NAME = ''  # Names of the two players in the game
