@@ -39,6 +39,7 @@ def test():
 def promptPlayers(in_pair=None, _learning=True, savedState=False):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ']
+    _reinforce = False
     if in_pair != None:
         ptype = list(in_pair)
     else:

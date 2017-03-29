@@ -139,6 +139,14 @@ class Simulator(object):
         Save dictionary object generated during the training in order
         to be able to use the player without training it again.
         '''
-        save_dir = './reinforcement_dict/' + player._name + '.pickle'
+        save_dir = './reinforcement_dict/' + self.getGameNames() + '.pickle'
         with open(save_dir, 'wb') as handle:
             pickle.dump(player.Q, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def getGameNames(self):
+        '''
+        Return game names, for both payer one and player two
+        '''
+        p1 = self.game._player_pair[0]._name
+        p2 = self.game._player_pair[1]._name
+        return p1+p2
