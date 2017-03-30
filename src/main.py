@@ -134,7 +134,7 @@ def main():
     # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
         pair = (sys.argv[1], sys.argv[2])
-        save_file = '../log_reinforce/'sys.argv[3]
+        save_file = '../log_reinforce/' + sys.argv[3]
     else:
         pair = None
         save_file = "save.pkl"
@@ -183,12 +183,10 @@ def main():
 # Primary game loop for training Q_learn
 def mainQ(_learning=True):
     # Set player types and logging if provided in command line
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 3:
         pair = (sys.argv[1], sys.argv[2])
-        save_file = sys.argv[3]
     else:
         pair = None
-        save_file = "save.pkl"
 
     # Prompt players
     # Needs to be adapted to get define parameters
@@ -200,7 +198,7 @@ def mainQ(_learning=True):
     # Create new simulation
     # Flags:
     #   - debug: (True, False)
-    sim = Simulator(game, save_file)
+    sim = Simulator(game)
 
 
     ######

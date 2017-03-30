@@ -147,6 +147,4 @@ class Simulator(object):
         '''
         Return game names, for both payer one and player two
         '''
-        p1 = self.game._player_pair[0]._name
-        p2 = self.game._player_pair[1]._name
-        return p1+p2
+        return const.GAME_NAME

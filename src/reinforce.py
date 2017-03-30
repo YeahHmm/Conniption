@@ -59,7 +59,7 @@ class Qlearn(game.Player):
         completed and there is no need for more.
         '''
         self.trial_num += 1
-        a = 0.003
+        a = 0.004
         self.epsilon = math.exp(1)**(-a*self.trial_num)
         #self.epsilon = self.epsilon - 0.010
         if testing == True:
@@ -152,6 +152,7 @@ class Qlearn(game.Player):
             reward = self.evalFunc(new_state)
             print ('Selected move: ', move)
             print ('reward before: ', reward)
+            # Add a bias against flipping
             if action == 'none':
                 if state._player == 0:
                     if reward > 0:
