@@ -27,7 +27,6 @@ class Qlearn(game.Player):
             self.Q = pickle.load(open(_file, 'rb'))
             self.epsilon = 0
             self.alpha = 0
-            print ('loaded')
         else:
             self.Q = dict()
         super().__init__(name)
@@ -114,7 +113,6 @@ class Qlearn(game.Player):
             moves = [x._column for x in valid_moves]
         rand_num = random.randint(0, len(moves)-1)
 
-        print ('Moves: ', moves)
         # If no more flips are allowed, select none.
         # If previous move was not a flip
         # No consecutive flips allowed
@@ -131,8 +129,6 @@ class Qlearn(game.Player):
                 max_states = []
                 maxQList = self.get_maxQ(state)
                 for maxQ in maxQList:
-                    print('maxQ: ', maxQ)
-                    print ('hash: ', self.Q[state.__hash__()])
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
                             max_states.append(key)
@@ -149,8 +145,6 @@ class Qlearn(game.Player):
         if self.learning:
             new_state = state.update(move)
             reward = self.evalFunc(new_state)
-            print ('Selected move: ', move)
-            print ('reward before: ', reward)
             # Add a bias against flipping
             if action == 'none':
                 if state._player == 0:
@@ -163,7 +157,7 @@ class Qlearn(game.Player):
                         reward *= 1.5
                     else:
                         reward /= 1.5
-            print ('reward: ', reward)
+
 
             if state.__hash__() not in self.Q:
                 self.createQ(state)
@@ -173,7 +167,7 @@ class Qlearn(game.Player):
             #new_q = old_q + (rate * ((reward)- old_q))
             new_q = (1 - rate) * old_q + (reward * self.alpha)
             self.Q[state.__hash__()][action] = new_q
-            print (self.Q[state.__hash__()])
+
 
         return
 
@@ -210,7 +204,6 @@ class MinimaxQlearn(game.AI):
             self.Q = pickle.load(open(_file, 'rb'))
             self.epsilon = 0
             self.alpha = 0
-            print ('Loaded')
         else:
             self.Q = dict()
 
@@ -300,7 +293,7 @@ class MinimaxQlearn(game.AI):
         rand_num = random.randint(0, len(moves)-1)
         #print ('Moves:', moves, 'r', rand_num)
 
-        print ('Moves: ', moves)
+
         # If no more flips are allowed, select none.
         # If previous move was not a flip
         # No consecutive flips allowed
@@ -317,8 +310,6 @@ class MinimaxQlearn(game.AI):
                 max_states = []
                 maxQList = self.get_maxQ(state)
                 for maxQ in maxQList:
-                    print('maxQ: ', maxQ)
-                    print ('hash: ', self.Q[state.__hash__()])
                     for key in moves:
                         if maxQ == self.Q[state.__hash__()][key]:
                             max_states.append(key)
@@ -333,10 +324,10 @@ class MinimaxQlearn(game.AI):
     def learn(self, state, move, action):
         if self.learning:
             moves = super().choose_move(state)
-            print ('Selected mov: ', move)
+            #print ('Selected mov: ', move)
             reward = [x._value for x in moves if x._item == move]
             reward = reward[0]
-            print ('reward: ', reward)
+            #print ('reward: ', reward)
 
             if state.__hash__() not in self.Q:
                 self.createQ(state)

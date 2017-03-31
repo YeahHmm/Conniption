@@ -173,6 +173,7 @@ def main():
             game.update(mv)
 
         # Log moves and results with pickle
+        game.drawScreen()
         game.save(save_file)
 
         # Prompt for replay
@@ -183,8 +184,9 @@ def main():
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
 
-    #play_again = promptContinue(stats, msg)
-    print (stats)
+    # Uncomment for non-stop simulation 
+    play_again = promptContinue(stats, msg)
+    #print (stats)
 
 
 # Primary game loop for training Q_learn
