@@ -80,7 +80,12 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
             pclass[i] = Human
             pname[i] = input("Enter Player %d name: " % (i+1))
 
-    const.GAME_NAME = pname[0] + pname[1]
+    # If human player, set the againt FLIP agent
+    _name = pname[0] + pname[1]
+    if 'HUMAN' in _name:
+        _name = _name.replace('HUMAN', 'FLIP')
+    const.GAME_NAME = _name
+
 
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
@@ -131,7 +136,7 @@ def promptContinue(stats, msg=''):
 
     return response
 
-# Primary game loop
+# Primary game loop, used for executing simulations
 def main():
     # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
@@ -148,7 +153,7 @@ def main():
 
     num_games = 100
 
-    player_pair = promptPlayers(pair, _learning=False, savedState=True)
+    player_pair = promptPlayers(pair, _learning=True, savedState=True)
     play_again =  False
 
     stats = {}

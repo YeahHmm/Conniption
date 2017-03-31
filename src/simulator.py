@@ -118,14 +118,14 @@ class Simulator(object):
         p1 = self._game._player_pair[0]
         p2 = self._game._player_pair[1]
         results = self.stats['results']
-        '''
+
         if results[0] > results[2]:
             msg = str(p1)
         elif results[0] < results[2]:
             msg = str(p2)
         else:
             msg = 'It was a tie'
-        '''
+
         msg = ''
         msg = '\n' + msg + '\n'
         msg += str(p1) + ': ' + '/'.join(map(str, results))

@@ -18,5 +18,5 @@ CELL_MAP = {}       # Dictionary mapping cells to sets of solutions
 NUM_LOOK = 3        # Default number of pairs of plies to look ahead
 DEBUG = False       # Debug mode
 
-DYNAMIC_MINIMAX = {}
+DYNAMIC_MINIMAX = {}  #Object used for the dynamix Minimax algorithm
 GAME_NAME = ''  # Names of the two players in the game

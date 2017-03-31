@@ -121,7 +121,6 @@ class Qlearn(game.Player):
         if len(moves) > 1:
             if self.epsilon > random.random():
                 # return a rand move with epsilon probability
-                print (self.epsilon, '--Choose by rand')
                 action = moves[rand_num]
             else:
                 # Get sorted list of states
@@ -176,14 +175,10 @@ class Qlearn(game.Player):
             self.Q[state.__hash__()][action] = new_q
             print (self.Q[state.__hash__()])
 
-        #print ('learning val: ', old_q, new_q, move)
         return
 
     def choose_move(self, state):
         self.createQ(state)
-        #print (state._stage)
-        #print ('Number of states: ', len(self.Q))
-        #print (self.Q)
         _action = self.choose_action(state)
         if state._stage == 0 or state._stage == 2:
             mv = Move(_action, state._player)
@@ -287,7 +282,6 @@ class MinimaxQlearn(game.AI):
     def get_maxQ(self, state):
         items = self.Q[state.__hash__()].values()
         maxQ = sorted(items, reverse= state._player == 0)
-        #print (items, maxQ, state._player)
         return maxQ
 
 
@@ -341,7 +335,6 @@ class MinimaxQlearn(game.AI):
             moves = super().choose_move(state)
             print ('Selected mov: ', move)
             reward = [x._value for x in moves if x._item == move]
-            print (reward)
             reward = reward[0]
             print ('reward: ', reward)
 
@@ -352,16 +345,11 @@ class MinimaxQlearn(game.AI):
             #new_q = old_q + (rate * ((reward)- old_q))
             new_q = (1 - rate) * old_q + (reward * self.alpha)
             self.Q[state.__hash__()][action] = new_q
-            print (self.Q[state.__hash__()])
 
-        #print ('learning val: ', old_q, new_q, move)
         return
 
     def choose_move(self, state):
         self.createQ(state)
-        #print (state._stage)
-        #print ('Number of states: ', len(self.Q))
-        #print (self.Q)
         _action = self.choose_action(state)
         if state._stage == 0 or state._stage == 2:
             mv = Move(_action, state._player)
@@ -369,5 +357,4 @@ class MinimaxQlearn(game.AI):
             mv = Move('place', state._player, _action)
 
         self.learn(state, mv, _action)
-        #print (mv, 'from Qlearn')
         return mv

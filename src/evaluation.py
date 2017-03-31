@@ -45,14 +45,7 @@ def tieChoice_priority_qlearn(node_list, get_max):
     # Sort based on minimizing or maximizing
     node_list.sort(reverse=not get_max)
 
-    print ('before: ', node_list)
-    # Functions to assign weights to Move objects. Lower is preferred.
-    weight = {'none': lambda mv: 2,
-            'place': lambda mv: 1,
-            'flip':lambda mv: 1
-        }
-
-    #print (weight[node_list[0]._item._action](node_list[0]._value))
+    # Add weight towards the action none
     for x in range(len(node_list)):
         if node_list[x]._item._action == 'none':
             if get_max:
@@ -65,10 +58,6 @@ def tieChoice_priority_qlearn(node_list, get_max):
                     node_list[x]._value *= 2
                 else:
                     node_list[x]._value /= 2
-        #node_list[x]._value = node_list[x]._value * weight[node_list[x]._item._action](node_list[0]._value)
-    #best = [x._item = weight[x._item._action] * x._item for x in node_list]
-
-    print('after: ', node_list)
     return node_list
 
 '''
