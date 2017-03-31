@@ -80,6 +80,8 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
             pclass[i] = Human
             pname[i] = input("Enter Player %d name: " % (i+1))
 
+    const.GAME_NAME = pname[0] + pname[1]
+
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     elif pclass[0] == Qlearn:
@@ -106,7 +108,7 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
     else:
         p2 = pclass[1](pname[1], pfunc[1], const.NUM_LOOK, tieChoice=tieChoice_priority)
 
-    const.GAME_NAME = pname[0] + pname[1]
+
     return (p1, p2)
 
 # Ask if supervisor wants to run another game
@@ -140,7 +142,7 @@ def main():
         save_file = "save.pkl"
 
     # Config info for debugging or game tweaking
-    const.DEBUG = True
+    const.DEBUG = False
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
@@ -213,5 +215,5 @@ def mainQ(_learning=True):
 
 if __name__ == "__main__":
     #test()
-    mainQ()
-    #main()
+    #mainQ()   # MainQ is used specifically to train the models.
+    main()
