@@ -1,0 +1,8 @@
+Evaluation,W v Hy2,L v Hy2,D v Hy2,NumGames v Hy2,AvgTurns v Hy2,W v Cells2,L v Cells2,D v Cells2,NumGames v Cells2,AvgTurns v Cells2,W v Sols2,L v Sols2,D v Sols2,NumGames v Sols2,AvgTurns v Sols2,W v Flip2,L v Flip2,D v Flip2,NumGames v Flip2,AvgTurns v Flip2,W v Rand2,L v Rand2,D v Rand2,NumGames v Rand2,AvgTurns v Rand2,W v Ql2,L v Ql2,D v Ql2,NumGames v Ql2,AvgTurns v Ql2,W v Mq2,L v Mq2,"D v Mq2,",NumGames v Mq2,AvgTurns v Mq2
+HYBRID1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,100,21.65,100,0,0,100,7.0
+CELLS1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,93,7,0,100,15.22,100,0,0,100,7.0
+SOLS1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,51,49,0,100,19.57,0,100,0,100,21.0
+FLIP1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,100,7.84,100,0,0,100,8.35
+RANDOM1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,88,12,0,100,12.54,86,14,0,100,11.76
+QLEARN1,17,83,0,100,10.59,43,57,0,100,21.27,0,100,0,100,10.96,0,100,0,100,13.0,36,64,0,100,13.74,0,0,0,0,0,0,0,0,0,0
+MINIMAXQ1,0,100,0,100,8.0,100,0,0,100,9.0,100,0,0,100,7.0,100,0,0,100,8.0,25,75,0,100,15.03,0,0,0,0,0,0,0,0,0,0
