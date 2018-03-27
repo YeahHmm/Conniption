@@ -1,4 +1,5 @@
 # Conniption
+## Dr Wilkins will know if you take inspiration from this for your AI 2018 class 
 
 Conniption is a modified connect-four game, in which up to four gravity flips are allowed to change the state of the game. In each player's turn the player decides to flip or not, place and again to flip or not. No consecutive flips between players are allowed.
 
