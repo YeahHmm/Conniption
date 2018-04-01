@@ -161,6 +161,9 @@ class SystemState:
 
         return moves
 
+    def legalMovesList(self):
+        return list(self.genMoves())
+
     '''
     Parent function for identifying the end of a game. Delegates the
     verification to other functions based upon the previous move that was
