@@ -296,7 +296,7 @@ class SystemState:
         return self.getBoardTuple() == state.getBoardTuple()
 
     def __hash__(self):
-        return (self.getBoardTuple(), self._stage).__hash__()
+        return (self.getBoardTuple(), self._stage, self._num_flips, self._is_down).__hash__()
 
     def __repr__(self):
         return self.toTuple().__repr__()
