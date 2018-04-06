@@ -28,8 +28,8 @@ class MCTS_AI(game.Player):
         self.state_history = []
         self.game = game
         self.gameState = None
-        self.max_moves = 126  # 42 * 3 - Total pices on the board times half-plie 
-        self.C = 1.4
+        self.max_moves = 126  # 42 * 3 - Total pices on the board times half-plie
+        self.C = 1.0
         seconds = 30
         self.calculation_time = datetime.timedelta(seconds=seconds)
         self.wins = {}
