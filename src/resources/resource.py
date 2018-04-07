@@ -191,6 +191,8 @@ class SystemState:
 
         return val
 
+    def done(self):
+        return self.isGoal()[0]
     '''
     A draw occurs when all cells are filled, and the player must place a tile.
     '''

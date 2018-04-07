@@ -9,6 +9,7 @@ import numpy as np
 from conniption_zero.agent.api_connect4 import Connect4ModelAPI
 from conniption_zero.config import Config
 from conniption_zero.env.connect4_env import Connect4Env, Winner, Player
+from resources.game import Player
 
 CounterKey = namedtuple("CounterKey", "board next_player")
 QueueItem = namedtuple("QueueItem", "state future")
@@ -17,9 +18,10 @@ HistoryItem = namedtuple("HistoryItem", "action policy values visit")
 logger = getLogger(__name__)
 
 
-class Connect4Player:
-    def __init__(self, config: Config, model, play_config=None):
+class AlphaZeroAI(Player):
+    def __init__(self, name, config: Config, model, play_config=None):
 
+        super().__init__(name)
         self.config = config
         self.model = model
         self.play_config = play_config or self.config.play
@@ -42,7 +44,7 @@ class Connect4Player:
 
         self.thinking_history = {}  # for fun
 
-    def action(self, board):
+    def choose_move(self, state):
 
         env = Connect4Env().update(board)
         key = self.counter_key(env)

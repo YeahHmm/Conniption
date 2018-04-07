@@ -3,7 +3,7 @@ from datetime import datetime
 from logging import getLogger
 from time import time
 
-from conniption_zero.agent.player_connect4 import Connect4Player
+from conniption_zero.agent.alphazero_AI import AlphaZeroAI
 from conniption_zero.config import Config
 from conniption_zero.env.connect4_env import Connect4Env, Winner, Player
 from conniption_zero.lib import tf_util
@@ -13,10 +13,11 @@ from conniption_zero.lib.model_helpler import load_best_model_weight, save_as_be
 
 logger = getLogger(__name__)
 
+from resources.resource import SystemState
 
 def start(config: Config):
     tf_util.set_session_config(per_process_gpu_memory_fraction=0.2)
-    return SelfPlayWorker(config, env=Connect4Env()).start()
+    return SelfPlayWorker(config, env=SystemState()).start()
 
 
 class SelfPlayWorker:
@@ -52,14 +53,15 @@ class SelfPlayWorker:
             idx += 1
 
     def start_game(self, idx):
-        self.env.reset()
-        self.black = Connect4Player(self.config, self.model)
-        self.white = Connect4Player(self.config, self.model)
-        while not self.env.done:
-            if self.env.player_turn() == Player.black:
-                action = self.black.action(self.env.board)
+        self.env = SystemState()
+        self.black = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
+        self.white = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
+        print(self.env._player)
+        while not self.env.done():
+            if self.env._player == 0:
+                action = self.black.choose_move(self.env)
             else:
-                action = self.white.action(self.env.board)
+                action = self.white.choose_move(self.env)
             self.env.step(action)
         self.finish_game()
         self.save_play_data(write=idx % self.config.play_data.nb_game_in_file == 0)
