@@ -1,15 +1,15 @@
-import const
-import sys
-#sys.setrecursionlimit(10000)
 
-from evaluation import *
-from game import Game, Human, AI
-from printing import prompt
-from resource import Move
-from reinforce import Qlearn, MinimaxQlearn
-from mcts_vanilla import MCTS_AI
-from simulator import Simulator
-import const
+import sys, os
+#sys.setrecursionlimit(10000)
+import resources.const
+from agents.evaluation import *
+from resources.game import Game, Human, AI
+from resources.printing import prompt
+from resources.resource import Move
+from agents.reinforce import Qlearn, MinimaxQlearn
+from agents.mcts_vanilla import MCTS_AI
+from agents.simulator import Simulator
+from resources import const
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -109,7 +109,7 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == MCTS_AI:
-        p1 = pclass[1](pname[1])
+        p2 = pclass[1](pname[1])
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
             learning=_learning, alpha=0.45, savedState=savedState)
@@ -230,6 +230,11 @@ def mainQ(_learning=True):
 
 
 if __name__ == "__main__":
+    _PATH_ = os.path.dirname(__file__)
+    print (_PATH_)
+    if _PATH_ not in sys.path:
+        sys.path.append(_PATH_)
+        sys.path.append("src") # fixing path issues
     #test()
     #mainQ()   # MainQ is used specifically to train the models.
     main()
