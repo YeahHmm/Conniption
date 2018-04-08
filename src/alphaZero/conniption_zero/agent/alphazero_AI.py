@@ -10,8 +10,9 @@ from conniption_zero.agent.api_connect4 import Connect4ModelAPI
 from conniption_zero.config import Config
 from conniption_zero.env.connect4_env import Connect4Env, Winner, Player
 from resources.game import Player
+from resources.resource import SystemState
 
-CounterKey = namedtuple("CounterKey", "board next_player")
+CounterKey = namedtuple("CounterKey", "board next_player stage is_down")
 QueueItem = namedtuple("QueueItem", "state future")
 HistoryItem = namedtuple("HistoryItem", "action policy values visit")
 
@@ -46,15 +47,16 @@ class AlphaZeroAI(Player):
 
     def choose_move(self, state):
 
-        env = Connect4Env().update(board)
+        env = state
         key = self.counter_key(env)
+        print (key)
 
         for tl in range(self.play_config.thinking_loop):
             if tl > 0 and self.play_config.logging_thinking:
                 logger.debug(f"continue thinking: policy move=({action % 8}, {action // 8}), "
                              f"value move=({action_by_value % 8}, {action_by_value // 8})")
-            self.search_moves(board)
-            policy = self.calc_policy(board)
+            self.search_moves(state)
+            policy = self.calc_policy(state)
             action = int(np.random.choice(range(self.labels_n), p=policy))
             action_by_value = int(np.argmax(self.var_q[key] + (self.var_n[key] > 0)*100))
             if action == action_by_value or env.turn < self.play_config.change_tau_turn:
@@ -69,27 +71,27 @@ class AlphaZeroAI(Player):
     def ask_thought_about(self, board) -> HistoryItem:
         return self.thinking_history.get(board)
 
-    def search_moves(self, board):
+    def search_moves(self, state):
         loop = self.loop
         self.running_simulation_num = 0
 
         coroutine_list = []
         for it in range(self.play_config.simulation_num_per_move):
-            cor = self.start_search_my_move(board)
+            cor = self.start_search_my_move(state)
             coroutine_list.append(cor)
 
         coroutine_list.append(self.prediction_worker())
         loop.run_until_complete(asyncio.gather(*coroutine_list))
 
-    async def start_search_my_move(self, board):
+    async def start_search_my_move(self, state):
         self.running_simulation_num += 1
         with await self.sem:  # reduce parallel search number
-            env = Connect4Env().update(board)
+            env = state
             leaf_v = await self.search_my_move(env, is_root_node=True)
             self.running_simulation_num -= 1
             return leaf_v
 
-    async def search_my_move(self, env: Connect4Env, is_root_node=False):
+    async def search_my_move(self, env: SystemState, is_root_node=False):
         """
 
         Q, V is value for this Player(always white).
@@ -98,10 +100,13 @@ class AlphaZeroAI(Player):
         :param is_root_node:
         :return:
         """
-        if env.done:
-            if env.winner == Winner.white:
+        done, winner = env.done()
+
+        # Hm this step is confusing
+        if done:
+            if winner == 1:
                 return 1
-            elif env.winner == Winner.black:
+            elif winner == 0:
                 return -1
             else:
                 return 0
@@ -114,13 +119,14 @@ class AlphaZeroAI(Player):
         # is leaf?
         if key not in self.expanded:  # reach leaf node
             leaf_v = await self.expand_and_evaluate(env)
-            if env.player_turn() == Player.white:
+            if env.player_turn() == 1:
                 return leaf_v  # Value for white
             else:
                 return -leaf_v  # Value for white == -Value for white
 
-        action_t = self.select_action_q_and_u(env, is_root_node)
-        _, _ = env.step(action_t)
+        action_t, new_move = self.select_action_q_and_u(env, is_root_node)
+        print ("Move is: " + str(action_t))
+        env = env.update(new_move)
 
         virtual_loss = self.config.play.virtual_loss
         self.var_n[key][action_t] += virtual_loss
@@ -146,11 +152,12 @@ class AlphaZeroAI(Player):
         self.now_expanding.add(key)
 
         black_ary, white_ary = env.black_and_white_plane()
-        state = [black_ary, white_ary] if env.player_turn() == Player.black else [white_ary, black_ary]
+        state = [black_ary, white_ary] if env._player == 0 else [white_ary, black_ary]
         future = await self.predict(np.array(state))  # type: Future
         await future
         leaf_p, leaf_v = future.result()
-
+        print('leaves')
+        print(leaf_p, leaf_v)
         self.var_p[key] = leaf_p  # P is value for next_player (black or white)
         self.expanded.add(key)
         self.now_expanding.remove(key)
@@ -209,12 +216,19 @@ class AlphaZeroAI(Player):
 
     @staticmethod
     def counter_key(env: Connect4Env):
-        return CounterKey(env.observation, env.turn)
+        return CounterKey(env.observation, env._num_placed,
+                            env._stage, env._is_down)
 
     def select_action_q_and_u(self, env, is_root_node):
         key = self.counter_key(env)
 
-        legal_moves = env.legal_moves()
+        legal_moves_objects = env.legal_moves()
+        legal_moves = [1] * len(legal_moves_objects)
+        if len(legal_moves) == 2:
+            legal_moves = legal_moves + [0] * 5
+        print(legal_moves)
+
+
 
         # noinspection PyUnresolvedReferences
         xx_ = np.sqrt(np.sum(self.var_n[key]))  # SQRT of sum(N(s, b); for all b)
@@ -226,7 +240,8 @@ class AlphaZeroAI(Player):
                  self.play_config.noise_eps * np.random.dirichlet([self.play_config.dirichlet_alpha] * self.labels_n)
 
         u_ = self.play_config.c_puct * p_ * xx_ / (1 + self.var_n[key])
-        if env.player_turn() == Player.white:
+
+        if env.player_turn() == 1:
             v_ = (self.var_q[key] + u_ + 1000) * legal_moves
         else:
             # When enemy's selecting action, flip Q-Value.
@@ -234,4 +249,5 @@ class AlphaZeroAI(Player):
 
         # noinspection PyTypeChecker
         action_t = int(np.argmax(v_))
-        return action_t
+
+        return action_t, legal_moves_objects[action_t]

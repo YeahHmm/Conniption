@@ -56,8 +56,8 @@ class SelfPlayWorker:
         self.env = SystemState()
         self.black = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
         self.white = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
-        print(self.env._player)
-        while not self.env.done():
+
+        while not self.env.done()[0]:
             if self.env._player == 0:
                 action = self.black.choose_move(self.env)
             else:

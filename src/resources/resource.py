@@ -2,6 +2,7 @@ from copy import deepcopy, copy
 from itertools import repeat, product, combinations
 from termcolor import colored
 import os
+import numpy as np
 
 from resources import const
 from resources.graph import Graph
@@ -161,7 +162,7 @@ class SystemState:
 
         return moves
 
-    def legalMovesList(self):
+    def legal_moves(self):
         return list(self.genMoves())
 
     '''
@@ -192,7 +193,7 @@ class SystemState:
         return val
 
     def done(self):
-        return self.isGoal()[0]
+        return self.isGoal()
     '''
     A draw occurs when all cells are filled, and the player must place a tile.
     '''
@@ -289,6 +290,37 @@ class SystemState:
 
     def getBoardTuple(self):
         return tuple(map(tuple, self._board))
+
+    '''
+        Necessary methods for the AlphaZero implementation
+    '''
+
+    def black_and_white_plane(self):
+        filled = self.filledMatrix()
+        board = list(zip(*filled))[::-1]
+        board_white = np.copy(board)
+        board_black = np.copy(board)
+        for i in range(6):
+            for j in range(7):
+                if board[i][j] == 2:
+                    board_white[i][j] = 0
+                    board_black[i][j] = 0
+                elif board[i][j] == 1:
+                    board_white[i][j] = 1
+                    board_black[i][j] = 0
+                else:
+                    board_white[i][j] = 0
+                    board_black[i][j] = 1
+        return np.array(board_white), np.array(board_black)
+
+    def player_turn(self):
+        return self._player
+
+    @property
+    def observation(self):
+        filled = self.filledMatrix()
+        board = list(zip(*filled))[::-1]
+        return ''.join(''.join(str(x) for x in y) for y in board)
 
     def toTuple(self):
         boardTup = self.getBoardTuple()

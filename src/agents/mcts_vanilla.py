@@ -52,7 +52,7 @@ class MCTS_AI(game.Player):
         self.update(state)
 
         self.max_depth = 0
-        legal = state.legalMovesList()
+        legal = state.legal_moves()
 
         if not legal:
             raise Exception('No legal moves')
