@@ -2,14 +2,16 @@ import os
 from logging import getLogger
 from random import random
 from time import sleep
+from copy import deepcopy
 
-from connect4_zero.agent.model_connect4 import Connect4Model
-from connect4_zero.agent.player_connect4 import Connect4Player
-from connect4_zero.config import Config
-from connect4_zero.env.connect4_env import Connect4Env, Winner, Player
-from connect4_zero.lib import tf_util
-from connect4_zero.lib.data_helper import get_next_generation_model_dirs
-from connect4_zero.lib.model_helpler import save_as_best_model, load_best_model_weight
+from conniption_zero.agent.model_connect4 import Connect4Model
+from conniption_zero.agent.alphazero_AI import AlphaZeroAI
+from conniption_zero.config import Config
+from conniption_zero.lib import tf_util
+from conniption_zero.lib.data_helper import get_next_generation_model_dirs
+from conniption_zero.lib.model_helpler import save_as_best_model, load_best_model_weight
+
+from resources import SystemState
 
 logger = getLogger(__name__)
 
@@ -64,31 +66,32 @@ class EvaluateWorker:
         return winning_rate >= self.config.eval.replace_rate
 
     def play_game(self, best_model, ng_model):
-        env = Connect4Env().reset()
+        env = SystemState()
 
-        best_player = Connect4Player(self.config, best_model, play_config=self.config.eval.play_config)
-        ng_player = Connect4Player(self.config, ng_model, play_config=self.config.eval.play_config)
+        best_player = AlphaZeroAI('ALPHAZERO1',self.config, best_model, play_config=self.config.eval.play_config)
+        ng_player = AlphaZeroAI('ALPHAZERO2',self.config, ng_model, play_config=self.config.eval.play_config)
         best_is_white = random() < 0.5
         if not best_is_white:
             black, white = best_player, ng_player
         else:
             black, white = ng_player, best_player
 
-        env.reset()
-        while not env.done:
-            if env.player_turn() == Player.black:
-                action = black.action(env.board)
+
+        while not env.done()[0]:
+            if env.player_turn() == 0:
+                action = black.choose_move(deepcopy(env))
             else:
-                action = white.action(env.board)
-            env.step(action)
+                action = white.action(deepcopy(env))
+            env = env.update(action)
 
         ng_win = None
-        if env.winner == Winner.white:
+        _, winner = env.done()
+        if winner == 1:
             if best_is_white:
                 ng_win = 0
             else:
                 ng_win = 1
-        elif env.winner == Winner.black:
+        elif winner == 0:
             if best_is_white:
                 ng_win = 1
             else:

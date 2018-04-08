@@ -14,7 +14,7 @@ from conniption_zero.lib import tf_util
 from conniption_zero.lib.data_helper import get_game_data_filenames, read_game_data_from_file, \
     get_next_generation_model_dirs
 from conniption_zero.lib.model_helpler import load_best_model_weight
-from conniption_zero.env.connect4_env import Connect4Env, Player
+
 
 
 logger = getLogger(__name__)
@@ -41,7 +41,7 @@ class OptimizeWorker:
     def training(self):
         self.compile_model()
         last_load_data_step = last_save_step = total_steps = self.config.trainer.start_total_steps
-        min_data_size_to_learn = 10000
+        min_data_size_to_learn = 100
         self.load_play_data()
 
         while True:
@@ -169,8 +169,8 @@ class OptimizeWorker:
         if filename in self.loaded_data:
             del self.loaded_data[filename]
 
-    @staticmethod
-    def convert_to_training_data(data):
+
+    def convert_to_training_data(self, data):
         """
 
         :param data: format is SelfPlayWorker.buffer
@@ -179,16 +179,31 @@ class OptimizeWorker:
         state_list = []
         policy_list = []
         z_list = []
-        for state, policy, z in data:
-            board = list(state)
-            board = np.reshape(board, (6, 7))
-            env = Connect4Env().update(board)
+        for state, policy, turn, z in data:
 
-            black_ary, white_ary = env.black_and_white_plane()
-            state = [black_ary, white_ary] if env.player_turn() == Player.black else [white_ary, black_ary]
+            black_ary, white_ary = self.black_and_white_plane(state)
+            state = [black_ary, white_ary] if turn == 0 else [white_ary, black_ary]
 
             state_list.append(state)
             policy_list.append(policy)
             z_list.append(z)
 
         return np.array(state_list), np.array(policy_list), np.array(z_list)
+
+    def black_and_white_plane(self, state):
+        board = list(map(int, list(state)))
+        board = np.reshape(board, (6,7))
+        board_white = np.copy(board)
+        board_black = np.copy(board)
+        for i in range(6):
+            for j in range(7):
+                if board[i][j] == 2:
+                    board_white[i][j] = 0
+                    board_black[i][j] = 0
+                elif board[i][j] == 1:
+                    board_white[i][j] = 1
+                    board_black[i][j] = 0
+                else:
+                    board_white[i][j] = 0
+                    board_black[i][j] = 1
+        return np.array(board_white), np.array(board_black)

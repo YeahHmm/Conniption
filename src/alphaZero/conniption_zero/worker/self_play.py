@@ -56,7 +56,7 @@ class SelfPlayWorker:
     def start_game(self, idx):
         self.env = SystemState()
         self.black = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
-        self.white = AlphaZeroAI('ALPHAZERO1', self.config, self.model)
+        self.white = AlphaZeroAI('ALPHAZERO2', self.config, self.model)
 
         while not self.env.done()[0]:
             if self.env._player == 0:

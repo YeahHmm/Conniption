@@ -64,8 +64,9 @@ class AlphaZeroAI(Player):
         # this is for play_gui, not necessary when training.
         self.thinking_history[env.observation] = HistoryItem(action, policy, list(self.var_q[key]), list(self.var_n[key]))
 
-        self.moves.append([env.observation, list(policy)])
-        return env.legal_moves()[action]
+        self.moves.append([env.observation, list(policy), env.player_turn()])
+
+        return self.mapActionToMove(action, env.legal_moves())
 
     def ask_thought_about(self, board) -> HistoryItem:
         return self.thinking_history.get(board)
@@ -249,11 +250,14 @@ class AlphaZeroAI(Player):
 
         # noinspection PyTypeChecker
         action_t = int(np.argmax(v_))
+
+        move = self.mapActionToMove(action_t, legal_moves_objects)
         if action_t > len(legal_moves_objects) -1:
             print('*************\n********', action_t, legal_moves, legal_moves_objects)
+            print(move)
 
 
-        return action_t, self.mapActionToMove(action_t, legal_moves_objects)
+        return action_t, move
 
     '''
         Method that returns an impleace 7 element list of all the
