@@ -54,6 +54,7 @@ class Move:
         return self.toTuple().__str__()
 
 
+
 '''
 Records the current state of the game for use in the main game loop and in
 AI searching functions. Updating with a Move occurs immutably.
@@ -153,9 +154,9 @@ class SystemState:
         # If in 1st or 3rd stage, return flip and none Moves if previous Move
         # was not a flip
         if self._prev_move._action != 'flip':
+            moves.add(Move('none', self._player))
             if self._num_flips[self._player] < const.MAX_FLIPS:
                 moves.add(Move('flip', self._player))
-            moves.add(Move('none', self._player))
         # Otherwise only return none Move
         else:
             moves.add(Move('none', self._player))
@@ -163,7 +164,7 @@ class SystemState:
         return moves
 
     def legal_moves(self):
-        return list(self.genMoves())
+        return list(sorted(list(self.genMoves()), key= lambda x: x._column))
 
     '''
     Parent function for identifying the end of a game. Delegates the

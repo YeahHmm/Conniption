@@ -3,7 +3,7 @@ from asyncio.queues import Queue
 from collections import defaultdict, namedtuple
 from logging import getLogger
 import asyncio
-
+from copy import deepcopy
 import numpy as np
 
 from conniption_zero.agent.api_connect4 import Connect4ModelAPI
@@ -59,14 +59,14 @@ class AlphaZeroAI(Player):
             policy = self.calc_policy(state)
             action = int(np.random.choice(range(self.labels_n), p=policy))
             action_by_value = int(np.argmax(self.var_q[key] + (self.var_n[key] > 0)*100))
-            if action == action_by_value or env.turn < self.play_config.change_tau_turn:
+            if action == action_by_value or env._num_placed < self.play_config.change_tau_turn:
                 break
 
         # this is for play_gui, not necessary when training.
         self.thinking_history[env.observation] = HistoryItem(action, policy, list(self.var_q[key]), list(self.var_n[key]))
 
         self.moves.append([env.observation, list(policy)])
-        return action
+        return env.legal_moves()[action]
 
     def ask_thought_about(self, board) -> HistoryItem:
         return self.thinking_history.get(board)
@@ -199,14 +199,14 @@ class AlphaZeroAI(Player):
         for move in self.moves:  # add this game winner result to all past moves.
             move += [z]
 
-    def calc_policy(self, board):
+    def calc_policy(self, state):
         """calc π(a|s0)
         :return:
         """
         pc = self.play_config
-        env = Connect4Env().update(board)
+        env = deepcopy(state)
         key = self.counter_key(env)
-        if env.turn < pc.change_tau_turn:
+        if env._num_placed < pc.change_tau_turn:
             return self.var_n[key] / np.sum(self.var_n[key])  # tau = 1
         else:
             action = np.argmax(self.var_n[key])  # tau = 0
@@ -223,12 +223,7 @@ class AlphaZeroAI(Player):
         key = self.counter_key(env)
 
         legal_moves_objects = env.legal_moves()
-        legal_moves = [1] * len(legal_moves_objects)
-        if len(legal_moves) == 2:
-            legal_moves = legal_moves + [0] * 5
-        print(legal_moves)
-
-
+        legal_moves = self.getLegalList(legal_moves_objects)
 
         # noinspection PyUnresolvedReferences
         xx_ = np.sqrt(np.sum(self.var_n[key]))  # SQRT of sum(N(s, b); for all b)
@@ -251,3 +246,22 @@ class AlphaZeroAI(Player):
         action_t = int(np.argmax(v_))
 
         return action_t, legal_moves_objects[action_t]
+
+    '''
+        Method that returns an impleace 7 element list of all the
+        possible moves:
+            - place: ordered list of columns
+            - flip/none: flip is index 1 and none is index 0
+    '''
+    def getLegalList(self, moves):
+        legal = [0] * 7
+        if moves[0]._action == 'place':
+            for c in moves:
+                legal[c._column] = 1
+        else:
+            for c in moves:
+                if c._action == 'flip':
+                    legal[1] = 1
+                else:
+                    legal[0] = 1
+        return legal

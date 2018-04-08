@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from logging import getLogger
 from time import time
+from copy import deepcopy
 
 from conniption_zero.agent.alphazero_AI import AlphaZeroAI
 from conniption_zero.config import Config
@@ -59,10 +60,12 @@ class SelfPlayWorker:
 
         while not self.env.done()[0]:
             if self.env._player == 0:
-                action = self.black.choose_move(self.env)
+                action = self.black.choose_move(deepcopy(self.env))
             else:
-                action = self.white.choose_move(self.env)
-            self.env.step(action)
+                action = self.white.choose_move(deepcopy(self.env))
+            print('back in the loop')
+            print (action)
+            self.env = self.env.update(action)
         self.finish_game()
         self.save_play_data(write=idx % self.config.play_data.nb_game_in_file == 0)
         self.remove_play_data()
