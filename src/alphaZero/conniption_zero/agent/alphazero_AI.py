@@ -12,7 +12,7 @@ from conniption_zero.env.connect4_env import Connect4Env, Winner, Player
 from resources.game import Player
 from resources.resource import SystemState
 
-CounterKey = namedtuple("CounterKey", "board next_player stage is_down")
+CounterKey = namedtuple("CounterKey", "board player stage is_down turn")
 QueueItem = namedtuple("QueueItem", "state future")
 HistoryItem = namedtuple("HistoryItem", "action policy values visit")
 
@@ -49,7 +49,6 @@ class AlphaZeroAI(Player):
 
         env = state
         key = self.counter_key(env)
-        print (key)
 
         for tl in range(self.play_config.thinking_loop):
             if tl > 0 and self.play_config.logging_thinking:
@@ -125,7 +124,7 @@ class AlphaZeroAI(Player):
                 return -leaf_v  # Value for white == -Value for white
 
         action_t, new_move = self.select_action_q_and_u(env, is_root_node)
-        print ("Move is: " + str(action_t))
+        #print ("Move is: " + str(action_t))
         env = env.update(new_move)
 
         virtual_loss = self.config.play.virtual_loss
@@ -156,8 +155,8 @@ class AlphaZeroAI(Player):
         future = await self.predict(np.array(state))  # type: Future
         await future
         leaf_p, leaf_v = future.result()
-        print('leaves')
-        print(leaf_p, leaf_v)
+        #print('leaves')
+        #print(leaf_p, leaf_v)
         self.var_p[key] = leaf_p  # P is value for next_player (black or white)
         self.expanded.add(key)
         self.now_expanding.remove(key)
@@ -216,12 +215,18 @@ class AlphaZeroAI(Player):
 
     @staticmethod
     def counter_key(env: Connect4Env):
-        return CounterKey(env.observation, env._num_placed,
-                            env._stage, env._is_down)
+        return CounterKey(env.observation, env._player,
+                            env._stage, env._is_down, env._num_placed)
 
     def select_action_q_and_u(self, env, is_root_node):
         key = self.counter_key(env)
 
+        '''
+        legal_moves:
+            In this list we declare which elements correspond to a legal move
+            extremly important when calculation which move should we take
+            according to q and u values
+        '''
         legal_moves_objects = env.legal_moves()
         legal_moves = self.getLegalList(legal_moves_objects)
 
@@ -244,8 +249,11 @@ class AlphaZeroAI(Player):
 
         # noinspection PyTypeChecker
         action_t = int(np.argmax(v_))
+        if action_t > len(legal_moves_objects) -1:
+            print('*************\n********', action_t, legal_moves, legal_moves_objects)
 
-        return action_t, legal_moves_objects[action_t]
+
+        return action_t, self.mapActionToMove(action_t, legal_moves_objects)
 
     '''
         Method that returns an impleace 7 element list of all the
@@ -265,3 +273,14 @@ class AlphaZeroAI(Player):
                 else:
                     legal[0] = 1
         return legal
+
+    '''
+        Method that maps the selected action to the corresponding move object:
+            - place: the legal moves are not always going to be 7. Hence
+                    in this particular case is when the mapping is necessary
+            - flip/none: guarantee to be in correct order
+    '''
+    def mapActionToMove(self, action, moves):
+        if moves[0]._action == 'place':
+            return [ x for x in moves if x._column == action ][0]
+        return moves[action]

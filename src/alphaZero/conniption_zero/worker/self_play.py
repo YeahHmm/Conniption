@@ -48,7 +48,7 @@ class SelfPlayWorker:
             env = self.start_game(idx)
             end_time = time()
             logger.debug(f"game {idx} time={end_time - start_time} sec, "
-                         f"turn={env.turn}:{env.observation} - Winner:{env.winner}")
+                         f"turn={env._num_placed}:{env.observation} - Winner:{env.done()[1]}")
             if (idx % self.config.play_data.nb_game_in_file) == 0:
                 reload_best_model_weight_if_changed(self.model)
             idx += 1
@@ -66,6 +66,7 @@ class SelfPlayWorker:
             print('back in the loop')
             print (action)
             self.env = self.env.update(action)
+            print(self.env)
         self.finish_game()
         self.save_play_data(write=idx % self.config.play_data.nb_game_in_file == 0)
         self.remove_play_data()
@@ -93,9 +94,10 @@ class SelfPlayWorker:
             os.remove(files[i])
 
     def finish_game(self):
-        if self.env.winner == Winner.black:
+        _, winner = self.env.done()
+        if winner == 0:
             black_win = 1
-        elif self.env.winner == Winner.white:
+        elif winner == 1:
             black_win = -1
         else:
             black_win = 0
