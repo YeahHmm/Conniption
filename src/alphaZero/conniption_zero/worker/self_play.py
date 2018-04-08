@@ -63,10 +63,8 @@ class SelfPlayWorker:
                 action = self.black.choose_move(deepcopy(self.env))
             else:
                 action = self.white.choose_move(deepcopy(self.env))
-            print('back in the loop')
-            print (action)
             self.env = self.env.update(action)
-            print(self.env)
+        print(self.env)
         self.finish_game()
         self.save_play_data(write=idx % self.config.play_data.nb_game_in_file == 0)
         self.remove_play_data()

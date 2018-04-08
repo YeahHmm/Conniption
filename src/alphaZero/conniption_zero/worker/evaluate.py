@@ -11,7 +11,7 @@ from conniption_zero.lib import tf_util
 from conniption_zero.lib.data_helper import get_next_generation_model_dirs
 from conniption_zero.lib.model_helpler import save_as_best_model, load_best_model_weight
 
-from resources import SystemState
+from resources.resource import SystemState
 
 logger = getLogger(__name__)
 

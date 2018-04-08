@@ -252,10 +252,6 @@ class AlphaZeroAI(Player):
         action_t = int(np.argmax(v_))
 
         move = self.mapActionToMove(action_t, legal_moves_objects)
-        if action_t > len(legal_moves_objects) -1:
-            print('*************\n********', action_t, legal_moves, legal_moves_objects)
-            print(move)
-
 
         return action_t, move
 
