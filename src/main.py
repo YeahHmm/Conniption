@@ -11,6 +11,10 @@ from agents.mcts_vanilla import MCTS_AI
 from agents.simulator import Simulator
 from resources import const
 
+from conniption_zero.agent.alphazero_AI import AlphaZeroAI
+from conniption_zero.config import Config
+from conniption_zero.lib.model_helpler import load_best_model_weight
+
 # Testing function to more concisely build a board
 def place(game, player, col):
     game.update(Move('none', player))
@@ -40,7 +44,7 @@ def test():
 # Prompt for player types and names
 def promptPlayers(in_pair=None, _learning=True, savedState=False):
     ptype = [None, None]
-    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ', 'MCTS']
+    name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ', 'ALPHAZERO']
     _reinforce = False
     if in_pair != None:
         ptype = list(in_pair)
@@ -48,7 +52,7 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
         prompt_string = "Enter Player type: \n\t[1: Human], \n\t[2: Sols]," \
                         + "\n\t[3: Cells],\n\t[4: Hybrid],\n\t[5: Flip]," \
                         + "\n\t[6: Random] \n\t[7: QLearn]\n\t[8: MinimaxQ]" \
-                        "\n\t[9: MCTS] \nChoose: "
+                        "\n\t[9: AlphaZero] \nChoose: "
         ptype[0] = input(prompt_string)
         ptype[1] = input(prompt_string)
 
@@ -78,8 +82,8 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
             pfunc[i] = controlled_sols
         elif ptype[i] == "HYBRID" or ptype[i] == "4":
             pfunc[i] = cell_sol_hybrid
-        elif ptype[i] == "MCTS" or ptype[i] == "9":
-            pclass[i] = MCTS_AI
+        elif ptype[i] == "ALPHAZERO" or ptype[i] == "9":
+            pclass[i] = AlphaZeroAI
         elif ptype[i] == "HUMAN" or ptype[i] == "1":
             pclass[i] = Human
             pname[i] = input("Enter Player %d name: " % (i+1))
@@ -93,8 +97,9 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
 
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
-    elif pclass[0] == MCTS_AI:
-        p1 = pclass[0](pname[0])
+    elif pclass[0] == AlphaZeroAI:
+        config, model = _load_model()
+        p1 = pclass[0](pname[0], config, model)
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
             learning=_learning, alpha=0.45, savedState=savedState)
@@ -108,8 +113,9 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False):
 
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
-    elif pclass[1] == MCTS_AI:
-        p2 = pclass[1](pname[1])
+    elif pclass[1] == AlphaZeroAI:
+        config, model = _load_model()
+        p1 = pclass[0](pname[0], config, model)
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
             learning=_learning, alpha=0.45, savedState=savedState)
@@ -227,6 +233,16 @@ def mainQ(_learning=True):
 
     sim.run(tolerance=0.001,n_test=100)
 
+def _load_model():
+    from connect4_zero.agent.model_connect4 import Connect4Model
+    from conniption_zero.config import Config
+    from conniption_zero.lib.model_helpler import load_best_model_weight
+
+    config = Config(config_type='normal')
+    model = Connect4Model(config)
+    if not load_best_model_weight(model):
+        raise RuntimeError("best model not found!")
+    return model, config
 
 
 if __name__ == "__main__":

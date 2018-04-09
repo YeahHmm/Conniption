@@ -164,7 +164,10 @@ class SystemState:
         return moves
 
     def legal_moves(self):
-        return list(sorted(list(self.genMoves()), key= lambda x: x._column))
+        moves = list(self.genMoves())
+        if moves[0]._action == 'place':
+            return list(sorted(moves, key= lambda x: x._column))
+        return list(sorted(moves, key= lambda x: x._action, reverse=True))
 
     '''
     Parent function for identifying the end of a game. Delegates the
