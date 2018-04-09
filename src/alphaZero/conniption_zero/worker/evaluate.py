@@ -81,7 +81,7 @@ class EvaluateWorker:
             if env.player_turn() == 0:
                 action = black.choose_move(deepcopy(env))
             else:
-                action = white.action(deepcopy(env))
+                action = white.choose_move(deepcopy(env))
             env = env.update(action)
 
         ng_win = None
