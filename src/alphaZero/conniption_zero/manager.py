@@ -17,6 +17,7 @@ def create_parser():
     parser.add_argument("--new", help="run from new best model", action="store_true")
     parser.add_argument("--type", help="use normal setting", default="normal")
     parser.add_argument("--total-step", help="set TrainerConfig.start_total_steps", type=int)
+    parser.add_argument("--game", help="<p1> <p2> <GAME_NAME", type=str, default="")
     return parser
 
 
@@ -51,4 +52,5 @@ def start():
         from .play_game import gui
         return gui.start(config)
     elif args.cmd == 'main':
-        return main(config)
+        print (args.game)
+        return main(config, args.game)

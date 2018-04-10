@@ -152,13 +152,14 @@ def promptContinue(stats, msg=''):
 
 
 # Primary game loop, used for executing simulations
-def main(config: Config):
+def main(config: Config, game):
     # Set player types and logging if provided in command line
-    if len(sys.argv) == 4:
+    game = game.split(' ')
+    if len(game) == 3:
         import datetime
         now = datetime.datetime.now()
-        pair = (sys.argv[1], sys.argv[2])
-        save_file = '../log_alpha/' + now.month + '-' + now.day + '-' + sys.argv[3]
+        pair = (game[0], [1])
+        save_file = '../log_alpha/' + now.month + '-' + now.day + '-' + games[2]
     else:
         pair = None
         save_file = "save.pkl"

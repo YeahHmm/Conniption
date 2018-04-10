@@ -22,7 +22,7 @@ class Qlearn(game.Player):
         self.epsilon = epsilon
         self.trial_num = 0
         if savedState:
-            _file = './agents/reinforcement_dict/' + const.GAME_NAME + '.pickle'
+            _file = './src/agents/reinforcement_dict/' + const.GAME_NAME + '.pickle'
             self.Q = pickle.load(open(_file, 'rb'))
             self.epsilon = 0
             self.alpha = 0
@@ -199,7 +199,7 @@ class MinimaxQlearn(game.AI):
         self.epsilon = epsilon
         self.trial_num = 0
         if savedState:
-            _file = './agents/reinforcement_dict/' + const.GAME_NAME + '.pickle'
+            _file = './src/agents/reinforcement_dict/' + const.GAME_NAME + '.pickle'
             self.Q = pickle.load(open(_file, 'rb'))
             self.epsilon = 0
             self.alpha = 0
