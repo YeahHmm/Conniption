@@ -158,8 +158,8 @@ def main(config: Config, game):
     if len(game) == 3:
         import datetime
         now = datetime.datetime.now()
-        pair = (game[0], [1])
-        save_file = '../log_alpha/' + now.month + '-' + now.day + '-' + games[2]
+        pair = (game[0], game[1])
+        save_file = '../log_alpha/' + str(now.month) + '-' + str(now.day) + '-' + game[2]
     else:
         pair = None
         save_file = "save.pkl"

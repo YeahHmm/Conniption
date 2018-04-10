@@ -18,5 +18,4 @@ tmp.*
 /bin/
 /keys/*
 video/*
-*.h5
 logs/

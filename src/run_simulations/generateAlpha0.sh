@@ -1,4 +1,3 @@
-cd ../..
 python3 src/alphaZero/conniption_zero/run.py main --game "alphazero hybrid ah.pkl"
 python3 src/alphaZero/conniption_zero/run.py main --game "alphazero cells ac.pkl"
 python3 src/alphaZero/conniption_zero/run.py main --game "alphazero sols as.pkl"
