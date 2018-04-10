@@ -83,7 +83,7 @@ class EvaluateWorker:
             else:
                 action = white.choose_move(deepcopy(env))
             env = env.update(action)
-
+        print(env)
         ng_win = None
         _, winner = env.done()
         if winner == 1:

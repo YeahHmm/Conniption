@@ -4,10 +4,11 @@ from logging import getLogger
 
 from .lib.logger import setup_logger
 from .config import Config
+from .main import main
 
 logger = getLogger(__name__)
 
-CMD_LIST = ['self', 'opt', 'eval', 'play_gui']
+CMD_LIST = ['self', 'opt', 'eval', 'play_gui', 'main']
 
 
 def create_parser():
@@ -49,3 +50,5 @@ def start():
     elif args.cmd == 'play_gui':
         from .play_game import gui
         return gui.start(config)
+    elif args.cmd == 'main':
+        return main(config)

@@ -10,9 +10,9 @@ from agents.reinforce import Qlearn, MinimaxQlearn
 from agents.simulator import Simulator
 from resources import const
 
-from .agent.alphazero_AI import AlphaZeroAI
-from .config import Config
-from .lib.model_helpler import load_best_model_weight
+from conniption_zero.agent.alphazero_AI import AlphaZeroAI
+from conniption_zero.config import Config
+from conniption_zero.lib.model_helpler import load_best_model_weight
 
 # Testing function to more concisely build a board
 def place(game, player, col):
@@ -41,7 +41,7 @@ def test():
         print(game.checkWin())
 
 # Prompt for player types and names
-def promptPlayers(in_pair=None, _learning=True, savedState=False, config):
+def promptPlayers(config:Config, in_pair=None, _learning=True, savedState=False):
     ptype = [None, None]
     name_mapping = ['HUMAN', 'SOLS', 'CELLS', 'HYBRID', 'FLIP', 'RANDOM', 'QLEARN', 'MINIMAXQ', 'ALPHAZERO']
     _reinforce = False
@@ -97,7 +97,7 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False, config):
     if pclass[0] == Human:
         p1 = pclass[0](pname[0])
     elif pclass[0] == AlphaZeroAI:
-        config, model = _load_model(config)
+        model = _loading_model(config)
         p1 = pclass[0](pname[0], config, model)
     elif pclass[0] == Qlearn:
         p1 = pclass[0](pname[0], pfunc[0],tieChoice=tieChoice_priority_qlearn, \
@@ -113,7 +113,7 @@ def promptPlayers(in_pair=None, _learning=True, savedState=False, config):
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == AlphaZeroAI:
-        config, model = _load_model(config)
+        model = _loading_model()
         p1 = pclass[0](pname[0], config, model)
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
@@ -150,12 +150,15 @@ def promptContinue(stats, msg=''):
 
     return response
 
+
 # Primary game loop, used for executing simulations
-def main(config):
+def main(config: Config):
     # Set player types and logging if provided in command line
     if len(sys.argv) == 4:
+        import datetime
+        now = datetime.datetime.now()
         pair = (sys.argv[1], sys.argv[2])
-        save_file = '../log_reinforce/' + sys.argv[3]
+        save_file = '../log_alpha/' + now.month + '-' + now.day + '-' + sys.argv[3]
     else:
         pair = None
         save_file = "save.pkl"
@@ -165,9 +168,9 @@ def main(config):
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    num_games = 1
+    num_games = 20
 
-    player_pair = promptPlayers(pair, _learning=True, savedState=True, config)
+    player_pair = promptPlayers(config, pair, _learning=True, savedState=True)
     play_again =  False
 
     stats = {}
@@ -199,8 +202,8 @@ def main(config):
             stats['results'][game._player_pair.index(game._winner)] += 1
 
     # Uncomment for non-stop simulation
-    play_again = promptContinue(stats, msg)
-    #print (stats)
+    #play_again = promptContinue(stats, msg)
+    print (stats)
 
 
 # Primary game loop for training Q_learn
@@ -232,16 +235,14 @@ def mainQ(_learning=True):
 
     sim.run(tolerance=0.001,n_test=100)
 
-def _load_model():
+def _loading_model(config: Config):
     from conniption_zero.agent.model_connect4 import Connect4Model
-    from conniption_zero.config import Config
     from conniption_zero.lib.model_helpler import load_best_model_weight
 
-    config = Config(config_type='normal')
     model = Connect4Model(config)
     if not load_best_model_weight(model):
         raise RuntimeError("best model not found!")
-    return model, config
+    return model
 
 
 if __name__ == "__main__":

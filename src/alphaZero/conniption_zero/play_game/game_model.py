@@ -23,7 +23,7 @@ class PlayWithHuman:
         self.ai = Connect4Player(self.config, self.model)
 
     def _load_model(self):
-        from connect4_zero.agent.model_connect4 import Connect4Model
+        from conniption_zero.agent.model_connect4 import Connect4Model
         model = Connect4Model(self.config)
         if not load_best_model_weight(model):
             raise RuntimeError("best model not found!")
