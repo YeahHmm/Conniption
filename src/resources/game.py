@@ -7,6 +7,8 @@ import sys
 from copy import deepcopy
 
 from termcolor import colored
+import colorama
+colorama.init()
 from resources.getch import _Getch
 
 from resources import const as const

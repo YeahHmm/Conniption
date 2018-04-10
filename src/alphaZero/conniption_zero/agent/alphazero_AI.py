@@ -282,4 +282,7 @@ class AlphaZeroAI(Player):
     def mapActionToMove(self, action, moves):
         if moves[0]._action == 'place':
             return [ x for x in moves if x._column == action ][0]
-        return moves[action]
+        elif len(moves) == 1:
+            return moves[0] # return none if is the only option
+        else:
+            return moves[action]
