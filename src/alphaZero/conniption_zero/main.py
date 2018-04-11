@@ -113,8 +113,8 @@ def promptPlayers(config:Config, in_pair=None, _learning=True, savedState=False)
     if pclass[1] == Human:
         p2 = pclass[1](pname[1])
     elif pclass[1] == AlphaZeroAI:
-        model = _loading_model()
-        p1 = pclass[0](pname[0], config, model)
+        model = _loading_model(config)
+        p2 = pclass[1](pname[1], config, model)
     elif pclass[1] == Qlearn:
         p2 = pclass[1](pname[1],pfunc[1],tieChoice=tieChoice_priority_qlearn,\
             learning=_learning, alpha=0.45, savedState=savedState)
@@ -159,7 +159,7 @@ def main(config: Config, game):
         import datetime
         now = datetime.datetime.now()
         pair = (game[0], game[1])
-        save_file = '../log_alpha/' + str(now.month) + '-' + str(now.day) + '-' + game[2]
+        save_file = './log_alpha/' + str(now.month) + '-' + str(now.day) + '-' + game[2]
     else:
         pair = None
         save_file = "save.pkl"
@@ -169,7 +169,7 @@ def main(config: Config, game):
     const.MAX_FLIPS = 4
     const.NUM_LOOK = 3
 
-    num_games = 20
+    num_games = 100
 
     player_pair = promptPlayers(config, pair, _learning=True, savedState=True)
     play_again =  False
@@ -201,7 +201,7 @@ def main(config: Config, game):
         else:
             msg = str(game._winner) + " wins!"
             stats['results'][game._player_pair.index(game._winner)] += 1
-
+        print(stats, msg)
     # Uncomment for non-stop simulation
     #play_again = promptContinue(stats, msg)
     print (stats)
