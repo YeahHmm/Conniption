@@ -24,5 +24,5 @@ data = []
 for f in comb:
     data += pickle.load(open(f, 'rb'))
 
-out = open('./log_alpha/results/merged_10_4evals.pkl', 'wb')
+out = open('./log_alpha/results/merged_'+ str(now.day)+ '_' + str(now.month) +'evals.pkl', 'wb')
 pickle.dump(data, out)
