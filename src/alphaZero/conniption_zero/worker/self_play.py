@@ -43,7 +43,7 @@ class SelfPlayWorker:
         self.buffer = []
         idx = 1
 
-        while True:
+        while idx < 500:
             start_time = time()
             env = self.start_game(idx)
             end_time = time()
