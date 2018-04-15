@@ -268,9 +268,9 @@ class AlphaZeroAI(Player):
         else:
             for c in moves:
                 if c._action == 'flip':
-                    legal[1] = 1
+                    legal[2] = 1
                 else:
-                    legal[0] = 1
+                    legal[3] = 1
         return legal
 
     '''
@@ -285,4 +285,10 @@ class AlphaZeroAI(Player):
         elif len(moves) == 1:
             return moves[0] # return none if is the only option
         else:
-            return moves[action]
+            # Adding flipping bias to make game play more in the center
+            if action == 3:
+                return moves[0]
+            elif action == 2:
+                return moves[1]
+            else:
+                raise Exception('Error in action keys')
