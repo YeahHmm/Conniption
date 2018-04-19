@@ -16,7 +16,7 @@ import datetime
 now = datetime.datetime.now()
 
 letters = {'h', 'c', 's', 'f', 'r'}
-comb = map(lambda p: './log_alpha/' + '4' + '-' + '19' + ''+ ''.join(p) + '.pkl',
+comb = map(lambda p: './log_alpha/' + '4' + '-' + '19-' + ''+ ''.join(p) + '.pkl',
             chain(product(letters, {'a'}), product({'a'}, letters)))
 print(comb)
 
