@@ -16,7 +16,7 @@ import datetime
 now = datetime.datetime.now()
 
 letters = {'h', 'c', 's', 'f', 'r'}
-comb = map(lambda p: './log_alpha/' + '4' + '-' + '19-' + ''+ ''.join(p) + '.pkl',
+comb = map(lambda p: './log_alpha/' + '4' + '-' + '20-' + ''+ ''.join(p) + '.pkl',
             chain(product(letters, {'a'}), product({'a'}, letters)))
 print(comb)
 
@@ -24,6 +24,6 @@ data = []
 for f in comb:
     data += pickle.load(open(f, 'rb'))
 
-out = open('./log_alpha/results/merged_19_4evals.pkl', 'wb')
+out = open('./log_alpha/results/merged_20_4evals.pkl', 'wb')
 #out = open('./log_alpha/results/merged_'+ str(now.day)+ '_' + str(now.month) +'evals.pkl', 'wb')
 pickle.dump(data, out)
