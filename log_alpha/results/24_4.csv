@@ -1,0 +1,7 @@
+Evaluation,W v Hy2,L v Hy2,D v Hy2,NumGames v Hy2,AvgTurns v Hy2,W v Cells2,L v Cells2,D v Cells2,NumGames v Cells2,AvgTurns v Cells2,W v Sols2,L v Sols2,D v Sols2,NumGames v Sols2,AvgTurns v Sols2,W v Flip2,L v Flip2,D v Flip2,NumGames v Flip2,AvgTurns v Flip2,W v Rand2,L v Rand2,D v Rand2,NumGames v Rand2,AvgTurns v Rand2,W v AL1,L v AL2,D v AL2,NumGames v AL2,AvgTurns v AL2
+HYBRID1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,88,12,0,100,10.13
+CELLS1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,36,0,100,12.88
+SOLS1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,9,0,100,10.45
+FLIP1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,100,8.91
+RANDOM1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,42,58,0,100,12.77
+ALPHAZERO1,39,61,0,100,11.08,66,34,0,100,11.48,26,74,0,100,10.45,17,83,0,100,10.82,72,28,0,100,11.38,0,0,0,0,0

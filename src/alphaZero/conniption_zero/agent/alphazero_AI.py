@@ -292,3 +292,20 @@ class AlphaZeroAI(Player):
                 return moves[1]
             else:
                 raise Exception('Error in action keys')
+
+    def reset(self):
+        self.var_n = defaultdict(lambda: np.zeros((self.labels_n,)))
+        self.var_w = defaultdict(lambda: np.zeros((self.labels_n,)))
+        self.var_q = defaultdict(lambda: np.zeros((self.labels_n,)))
+        self.var_u = defaultdict(lambda: np.zeros((self.labels_n,)))
+        self.var_p = defaultdict(lambda: np.zeros((self.labels_n,)))
+        self.expanded = set()
+        self.now_expanding = set()
+        self.prediction_queue = Queue(self.play_config.prediction_queue_size)
+        self.sem = asyncio.Semaphore(self.play_config.parallel_search_num)
+
+        self.moves = []
+        self.loop = asyncio.get_event_loop()
+        self.running_simulation_num = 0
+
+        self.thinking_history = {}  # for fun
